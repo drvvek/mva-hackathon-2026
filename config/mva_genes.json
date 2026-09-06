@@ -1,0 +1,18 @@
+{
+  "build": "GRCh38",
+  "pad_bp": 50,
+  "genes": {
+    "BUB1B": {"chrom": "15", "start": 40160984, "end": 40221137},
+    "CEP57": {"chrom": "11", "start": 95789965, "end": 95837070},
+    "TRIP13": {"chrom": "5", "start": 892849, "end": 919357},
+    "CENATAC": {"chrom": "11", "start": 118998051, "end": 119015811},
+    "SLF2": {"chrom": "10", "start": 100912963, "end": 100965134},
+    "SMC5": {"chrom": "9", "start": 70258270, "end": 70354874},
+    "MAD1L1": {"chrom": "7", "start": 1815787, "end": 2233243},
+    "BUB1": {"chrom": "2", "start": 110635468, "end": 110678098},
+    "MAD2L1BP": {"chrom": "6", "start": 43629494, "end": 43640960},
+    "CEP192": {"chrom": "18", "start": 12991283, "end": 13125053},
+    "BUB3": {"chrom": "10", "start": 123154365, "end": 123313144},
+    "MAD2L1": {"chrom": "4", "start": 120055623, "end": 120067192}
+  }
+}

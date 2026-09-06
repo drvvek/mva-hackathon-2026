@@ -1,0 +1,24 @@
+{
+  "proband_id": "PROBAND01",
+  "epcr": 0.85,
+  "finding_type": "primary",
+  "chrom_prefix": "chr",
+  "allele_1": {
+    "chrom": "15",
+    "pos": 40209701,
+    "ref": "T",
+    "alt": "G",
+    "hgvs": "NM_001211.6:c.2210T>G",
+    "protein": "p.Leu737Ter",
+    "note": "rs759242053; ClinVar P/LP for MVA1 (VCV000533901)"
+  },
+  "allele_2": {
+    "chrom": "15",
+    "pos": 40220612,
+    "ref": "T",
+    "alt": "G",
+    "hgvs": "NM_001211.6:c.3006T>G",
+    "protein": "p.Asn1002Lys",
+    "note": "VCF allele T>G. Same AA as ClinVar VCV004600147 c.3006T>A (Ambry VUS). Submit T>G."
+  }
+}

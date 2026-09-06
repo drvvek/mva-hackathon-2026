@@ -1,0 +1,24 @@
+# Never commit challenge data (real-child genome / phenotype)
+*.vcf
+*.vcf.gz
+*.vcf.gz.tbi
+*.tbi
+*.fastq.gz
+*.fq.gz
+*.bam
+*.cram
+*.bai
+*.crai
+*.docx
+*.xlsx
+data/
+.cache/
+Hackathon/
+
+__pycache__/
+*.pyc
+.venv/
+.env
+*.log
+.DS_Store
+Thumbs.db

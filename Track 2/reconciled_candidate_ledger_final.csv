@@ -1,0 +1,41 @@
+candidate,provenance,baseline_verdict,final_verdict,rank_to_test,revisited_in_ledger,contradictory_evidence_pmid,verdict_family,provenance_class
+Arimoclomol (Miplyffa),Pre-screen literature synthesis,ALLOW-CONTINGENT,"KILL, PATIENT-SPECIFIC",removed,yes,27450084;17889646,KILL (all forms),pre-screen
+Taurursodiol / TUDCA,Pre-screen literature synthesis,ALLOW-CONTINGENT,ALLOW-CONTINGENT,2,yes,22698286,RANKED (ALLOW-CONTINGENT),pre-screen
+"Sodium 4-phenylbutyrate (4-PBA, Buphenyl)",Pre-screen literature synthesis,KILL,KILL,,no,27667442,KILL (all forms),pre-screen
+Reduced nicotinamide riboside (NRH),Pre-screen literature synthesis,KILL,KILL,,no,41724424,KILL (all forms),pre-screen
+Nicotinamide riboside (NR) / NMN,Pre-screen literature synthesis,ALLOW-CONTINGENT,"ALLOW-CONTINGENT, DEMOTED",4,yes,41724424,RANKED (ALLOW-CONTINGENT),pre-screen
+Fisetin,Pre-screen literature synthesis,KILL,KILL,,no,30279143,KILL (all forms),pre-screen
+UBX1325 (foselutoclax),Pre-screen literature synthesis,KILL,KILL,,no,38321220,KILL (all forms),pre-screen
+Dasatinib + quercetin (D+Q),Pre-screen literature synthesis,KILL,KILL-ABSOLUTE,removed,yes,22048312,KILL (all forms),pre-screen
+Trehalose,Pre-screen literature synthesis,ALLOW-CONTINGENT,ALLOW-CONTINGENT,3,yes,26404941,RANKED (ALLOW-CONTINGENT),pre-screen
+Spermidine,Pre-screen literature synthesis,KILL,KILL,,no,29315079,KILL (all forms),pre-screen
+Imeglimin (Twymeeg),Pre-screen literature synthesis,KILL,KILL,,no,34962074;36847203;37713097,KILL (all forms),pre-screen
+Rapamycin (sirolimus),Pre-screen literature synthesis,KILL,KILL,,no,26147250,KILL (all forms),pre-screen
+Metformin,Pre-screen literature synthesis,KILL-ABSOLUTE,KILL-ABSOLUTE,,no,,KILL (all forms),pre-screen
+Ruxolitinib (Jakafi),Pre-screen literature synthesis,KILL,KILL,,no,39706184;27128228,KILL (all forms),pre-screen
+Baricitinib (Olumiant),Pre-screen literature synthesis,KILL,KILL,,no,39706184,KILL (all forms),pre-screen
+H-151 / SN-011 (STING antagonists),Pre-screen literature synthesis,KILL-ABSOLUTE,KILL-ABSOLUTE,,no,39706184,KILL (all forms),pre-screen
+"KIF18A inhibitors (sovilnesib, AMG-650, VLS-1272, ATX020)",Pre-screen literature synthesis,KILL,KILL,,no,41369352;39747049;33505028,KILL (all forms),pre-screen
+Vorinostat (SAHA),Pre-screen literature synthesis,KILL-ABSOLUTE,KILL-ABSOLUTE,,no,27667442,KILL (all forms),pre-screen
+"MPS1/TTK inhibitors (CFI-402257, BAY-1217389, reversine)",Pre-screen literature synthesis,KILL-ABSOLUTE,KILL-ABSOLUTE,,no,15208629,KILL (all forms),pre-screen
+Aurora B inhibitors (barasertib/AZD1152),Pre-screen literature synthesis,KILL-ABSOLUTE,KILL-ABSOLUTE,,no,20516114,KILL (all forms),pre-screen
+"Microtubule agents (vincristine, paclitaxel)",Pre-screen literature synthesis,"KILL as constitutional modifier, OUT OF SCOPE as therapy","KILL as constitutional modifier, OUT OF SCOPE as therapy",,no,,KILL (all forms),pre-screen
+"TRIP13 inhibitors (DCZ0415, DCZ5417)",Pre-screen literature synthesis,KILL-ABSOLUTE,KILL-ABSOLUTE,,no,28553959,KILL (all forms),pre-screen
+Recombinant human growth hormone (somatropin),Pre-screen literature synthesis,KILL-ABSOLUTE,KILL-ABSOLUTE,,no,25839904,KILL (all forms),pre-screen
+Glycerol phenylbutyrate (Ravicti),Systematic PubMed query,ALLOW-CONTINGENT,"ALLOW-CONTINGENT, CHEMOTHERAPY-FREE INTERVAL ONLY, HSF1 AND DEACETYLASE FLAG OPEN",5,yes,34125423;27667442,RANKED (ALLOW-CONTINGENT),pubmed
+Ursodeoxycholic acid (UDCA),Systematic PubMed query,SUPPORTIVE,SUPPORTIVE,,yes,22698286,SUPPORTIVE,pubmed
+"Nicotinamide (plain NAM, high dose)",Systematic PubMed query,KILL,KILL,,yes,33670751;41724424,KILL (all forms),pubmed
+Canakinumab,Systematic PubMed query,ALLOW-CONTINGENT,"ALLOW-CONTINGENT, DEFERRED",6,yes,28855077;24062309,RANKED (ALLOW-CONTINGENT),pubmed
+Anakinra,Systematic PubMed query,ALLOW-CONTINGENT,ALLOW-CONTINGENT,1,yes,24062309,RANKED (ALLOW-CONTINGENT),pubmed
+Navitoclax,Systematic PubMed query,KILL,"KILL, CLASS-LEVEL",removed,"yes - re-surfaced by the interactome sweep and broadened to the BCL-2-family/senolytic class; counted once, under the systematic PubMed query",26711051;25942994,KILL (all forms),pubmed
+N-acetylcysteine,Systematic PubMed query,KILL-ABSOLUTE,KILL-ABSOLUTE,,no,24477002;33557356;31356639,KILL (all forms),pubmed
+Everolimus,Systematic PubMed query,KILL,KILL,,no,26147250 (class read-across from sirolimus),KILL (all forms),pubmed
+Potassium citrate,Systematic PubMed query,SUPPORTIVE,SUPPORTIVE-CONTINGENT,,yes,39325135,SUPPORTIVE,pubmed
+Thiazide diuretic (hydrochlorothiazide),Systematic PubMed query,SUPPORTIVE,SUPPORTIVE-CONTINGENT,,yes,35348900;37684572,SUPPORTIVE,pubmed
+Cholecalciferol / routine vitamin D supplementation,Systematic PubMed query,DEPRESCRIBE-PENDING-WORKUP,DEPRESCRIBE-PENDING-WORKUP,,yes,34774244;38780860;26047794,DEPRESCRIBE,pubmed
+Loop diuretics (furosemide),Systematic PubMed query,DEPRESCRIBE-PENDING-WORKUP,"DEPRESCRIBE-PENDING-WORKUP, CHRONIC USE ONLY",,yes,35348900;37684572,DEPRESCRIBE,pubmed
+Miglustat,Systematic PubMed query,NOT-A-CANDIDATE,NOT-A-CANDIDATE,,no,40663813,NOT-A-CANDIDATE,pubmed
+HSP90 inhibitors (as a class),Interactome and annotation analysis,not in baseline screen,"KILL, CLASS-LEVEL",removed,yes,,KILL (all forms),interactome
+"Antimitotics against the BUB1B neighbourhood: AURKB, PLK1, MPS1/TTK, KIF11, CDK1, NEK2, CENPE, survivin",Interactome and annotation analysis,not in baseline screen,"KILL, CLASS-LEVEL",removed,yes,,KILL (all forms),interactome
+LB-100 (PP2A inhibitor),Interactome and annotation analysis,not in baseline screen,"KILL, WRONG DIRECTION",removed,yes,,KILL (all forms),interactome
+Proteasome inhibitors (bortezomib class),Interactome and annotation analysis,not in baseline screen,"KILL, FIREWALL",removed,yes,,KILL (all forms),interactome

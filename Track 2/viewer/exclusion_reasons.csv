@@ -1,0 +1,61 @@
+candidate_id,candidate,reason_id,code,rests_on_assumption,reason,report_source,filter_code_named_in
+dasatinib-plus-quercetin,Dasatinib plus quercetin,dasatinib-plus-quercetin-r1,FW,,"Its intended use here is senolytic clearance, which fails the firewall",Table 17,report
+dasatinib-plus-quercetin,Dasatinib plus quercetin,dasatinib-plus-quercetin-r2,f5,W,Removes a senescence brake and suppresses a chromosome-fragile marrow,Table 17,report
+dasatinib-plus-quercetin,Dasatinib plus quercetin,dasatinib-plus-quercetin-r3,f6,W,Senolytic where a senomorphic exists,Table 17,report
+dasatinib-plus-quercetin,Dasatinib plus quercetin,dasatinib-plus-quercetin-r4,f7,,Myelosuppression and pleural effusion overlap the rhabdomyosarcoma pathway,Table 17,report
+dasatinib-plus-quercetin,Dasatinib plus quercetin,dasatinib-plus-quercetin-r5,M,,"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it",Table 9,report
+fisetin,Fisetin,fisetin-r1,f5,W,Senolytic: fails f5 (hard),Table 17,report
+fisetin,Fisetin,fisetin-r2,f6,W,Senolytic where a senomorphic exists,Table 17,report
+fisetin,Fisetin,fisetin-r3,f2,,"No paediatric data, and the product is supplement-grade",Table 17,report
+ubx1325-foselutoclax,UBX1325 (foselutoclax),ubx1325-foselutoclax-r1,f5,W,Senolytic: fails f5,Table 17,report
+ubx1325-foselutoclax,UBX1325 (foselutoclax),ubx1325-foselutoclax-r2,f6,W,Senolytic where a senomorphic exists,Table 17,report
+navitoclax-and-the-bcl-2-family-senolytic-class,Navitoclax and the BCL-2-family senolytic class,navitoclax-and-the-bcl-2-family-senolytic-class-r1,FW,,"Used here as a senolytic (PMID 26711051), so it fails the firewall",Table 17,report
+navitoclax-and-the-bcl-2-family-senolytic-class,Navitoclax and the BCL-2-family senolytic class,navitoclax-and-the-bcl-2-family-senolytic-class-r2,f5,W,Senolytic: removes a proliferation brake,Table 17,report
+navitoclax-and-the-bcl-2-family-senolytic-class,Navitoclax and the BCL-2-family senolytic class,navitoclax-and-the-bcl-2-family-senolytic-class-r3,f6,W,Senolytic where a senomorphic exists,Table 17,report
+navitoclax-and-the-bcl-2-family-senolytic-class,Navitoclax and the BCL-2-family senolytic class,navitoclax-and-the-bcl-2-family-senolytic-class-r4,X,,Dose-limiting thrombocytopenia is disqualifying in a chromosome-fragile marrow (PMID 25942994),Table 17,report
+hsp90-inhibitors-class,HSP90 inhibitors (class),hsp90-inhibitors-class-r1,FW,,"The senescence-literature classification identified the class as senolytic, so it fails the firewall",Table 17,report
+hsp90-inhibitors-class,HSP90 inhibitors (class),hsp90-inhibitors-class-r2,f6,W,Senolytic where a senomorphic exists,Table 17,report
+hsp90-inhibitors-class,HSP90 inhibitors (class),hsp90-inhibitors-class-r3,X,,Opposes chaperone co-induction on the same axis; two strategies pulling opposite ways on one axis cannot both be right,Table 17,report
+proteasome-inhibitors-bortezomib-class,Proteasome inhibitors (bortezomib class),proteasome-inhibitors-bortezomib-class-r1,FW,,"Non-selective proteasome inhibition is cytotoxic by intended mechanism, so it fails the firewall",Table 17,report
+mps1-ttk-inhibitors,MPS1/TTK inhibitors,mps1-ttk-inhibitors-r1,M,,"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it",Table 18,report
+aurora-b-inhibitors,Aurora B inhibitors,aurora-b-inhibitors-r1,M,,"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it",Table 18,report
+trip13-inhibitors,TRIP13 inhibitors,trip13-inhibitors-r1,M,,"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it",Table 18,report
+kif18a-inhibitors,KIF18A inhibitors,kif18a-inhibitors-r1,f3,,"The selectivity claim is chromosomal-instability-positive cells over diploid cells, so the selective agent selects against the child's own tissue",Table 18,report
+antimitotic-classes-against-the-bub1b-neighbourhood,Antimitotic classes against the BUB1B neighbourhood,antimitotic-classes-against-the-bub1b-neighbourhood-r1,FW,,"Their intended anticancer mechanism is to increase chromosome missegregation, which fails the firewall",Table 18,report
+antimitotic-classes-against-the-bub1b-neighbourhood,Antimitotic classes against the BUB1B neighbourhood,antimitotic-classes-against-the-bub1b-neighbourhood-r2,f3,,Fails f3 in a child whose defining lesion is chromosomal instability,Table 18,report
+antimitotic-classes-against-the-bub1b-neighbourhood,Antimitotic classes against the BUB1B neighbourhood,antimitotic-classes-against-the-bub1b-neighbourhood-r3,f2,,None would clear f2,Table 18,report
+microtubule-agents-vincristine-paclitaxel,"Microtubule agents (vincristine, paclitaxel)",microtubule-agents-vincristine-paclitaxel-r1,X,,"Cells with a deficient checkpoint are expected to slip through mitotic arrest, so the agents are excluded as constitutional modifiers",Table 18,report
+microtubule-agents-vincristine-paclitaxel,"Microtubule agents (vincristine, paclitaxel)",microtubule-agents-vincristine-paclitaxel-r2,O,O,Tumour-directed use belongs to the treating oncology team (Assumption O) and is not reconsidered here,Table 18,report
+lb-100-pp2a-inhibitor,LB-100 (PP2A inhibitor),lb-100-pp2a-inhibitor-r1,X,,"Points the wrong way: reduced PP2A-B56 recruitment is the plausible functional deficit, and inhibiting PP2A would deepen it",Table 18,report
+vorinostat,Vorinostat,vorinostat-r1,f3,,Pan-HDAC inhibition is expected to perturb centromeric acetylation (an inference from mechanism),Table 18,report
+vorinostat,Vorinostat,vorinostat-r2,f4,Q,"Electrolyte wasting is expected to accelerate calcium-phosphate precipitation (an inference, not checked against a label)",Table 18,report
+vorinostat,Vorinostat,vorinostat-r3,M,,"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it",Table 9,report
+ruxolitinib,Ruxolitinib,ruxolitinib-r1,f5,,Blocks the innate sensing arm that surveils missegregating cells,Table 19,report
+ruxolitinib,Ruxolitinib,ruxolitinib-r2,f7,,"CYP3A4 substrate, myelosuppressive, infection risk over an unknown chemotherapy interval",Table 19,report
+baricitinib,Baricitinib,baricitinib-r1,f5,,The same surveillance argument,Table 19,report
+baricitinib,Baricitinib,baricitinib-r2,f7,,Infection risk over an unknown chemotherapy interval,Table 19,report
+h-151-and-sn-011-sting-antagonists,H-151 and SN-011 (STING antagonists),h-151-and-sn-011-sting-antagonists-r1,M,,"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it",Table 19,report
+metformin,Metformin,metformin-r1,f4,Q,Eliminated unchanged by the kidney; reduced tubular reserve risks accumulation and lactic acidosis (hard),Table 20,report
+metformin,Metformin,metformin-r2,f7,,Fails f7,Table 20,report
+metformin,Metformin,metformin-r3,M,,"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it",Table 9,report
+imeglimin,Imeglimin,imeglimin-r1,f2,,"Approved in Japan for adult type 2 diabetes, with no paediatric data",Table 20,report
+imeglimin,Imeglimin,imeglimin-r2,f7,,An OCT-transported cation with no paediatric pharmacokinetics,Table 20,report
+sirolimus,Sirolimus,sirolimus-r1,f4,Q,Proximal tubular proteinuria and impaired tubular regeneration,Table 20,report
+sirolimus,Sirolimus,sirolimus-r2,f5,,Chronic immunosuppression removes anti-tumour surveillance,Table 20,report
+sirolimus,Sirolimus,sirolimus-r3,f7,,Suppresses linear growth velocity in a child whose cardinal phenotype is growth failure; CYP3A4 interactions,Table 20,report
+everolimus,Everolimus,everolimus-r1,f4,Q,Rapalog class proteinuria,Table 20,report
+everolimus,Everolimus,everolimus-r2,f5,,Fails f5,Table 20,report
+everolimus,Everolimus,everolimus-r3,f7,,"Growth suppression, stomatitis, CYP3A4",Table 20,report
+somatropin-recombinant-human-growth-hormone,Somatropin (recombinant human growth hormone),somatropin-recombinant-human-growth-hormone-r1,M,,"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it",Table 20,report
+arimoclomol,Arimoclomol,arimoclomol-r1,f5,RMS,"Evidence specific to this tumour type: rhabdomyosarcoma depends on cytosolic HSP70, and HSF1 co-induction is judged to select for the tumour compartment",Table 21 (filter code from Figure 2),figure
+sodium-4-phenylbutyrate,Sodium 4-phenylbutyrate,sodium-4-phenylbutyrate-r1,f4,Q,"Sodium load raises urinary calcium excretion, the wrong direction in established nephrocalcinosis (hard)",Table 21,report
+sodium-4-phenylbutyrate,Sodium 4-phenylbutyrate,sodium-4-phenylbutyrate-r2,f1,,The same ER-client mismatch as TUDCA,Table 21,report
+sodium-4-phenylbutyrate,Sodium 4-phenylbutyrate,sodium-4-phenylbutyrate-r3,f7,,"Volume, palatability and sodium load in a child whose fluid and electrolyte management is unknown",Table 21,report
+reduced-nicotinamide-riboside-nrh,Reduced nicotinamide riboside (NRH),reduced-nicotinamide-riboside-nrh-r1,f2,,"No human paediatric data, no paediatric formulation or dose",Table 21,report
+reduced-nicotinamide-riboside-nrh,Reduced nicotinamide riboside (NRH),reduced-nicotinamide-riboside-nrh-r2,f5,,Vitamin B3 class signal for tumour-cell survival and chemoresistance,Table 21,report
+reduced-nicotinamide-riboside-nrh,Reduced nicotinamide riboside (NRH),reduced-nicotinamide-riboside-nrh-r3,f7,,Unknown interactions on a chemotherapy pathway,Table 21,report
+nicotinamide-plain-high-dose,"Nicotinamide (plain, high dose)",nicotinamide-plain-high-dose-r1,f1,,Expected to inhibit SIRT2 and so to work against the intended mechanism (untested),Table 21,report
+nicotinamide-plain-high-dose,"Nicotinamide (plain, high dose)",nicotinamide-plain-high-dose-r2,f5,,Carries the same tumour-support class signal as NR and NMN,Table 21,report
+spermidine,Spermidine,spermidine-r1,f2,,Human safety data in older adults only,Table 21,report
+spermidine,Spermidine,spermidine-r2,f7,,No paediatric dose or formulation,Table 21,report
+n-acetylcysteine,N-acetylcysteine,n-acetylcysteine-r1,M,,"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it",Table 21,report

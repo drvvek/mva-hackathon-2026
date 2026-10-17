@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assumptions and filters viewer</title>
+<style>
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --ink:#1d2330; --muted:#5a6272; --line:#d9dde5; --line2:#e8ebf0;
+  --accent:#2a4a7f; --accent-ink:#ffffff; --focus:#1a73e8;
+  --pass:#4c72a8; --cond:#d8ccb4; --fail:#b5452e; --na:#eeeff1; --unsc:#f7f7f8;
+  --amber:#b36a00; --amber-bg:#fdf1dc; --red:#b5452e; --red-bg:#fbe7e2; --blue:#2a4a7f; --blue-bg:#e3ebf8;
+  --teal:#0f6b63; --teal-bg:#dcf1ee; --grey-bg:#eceef2; --off:#c9ced8; --cond-ink:#3a3320;
+  --vallow:#2a4a7f; --vsup:#555b66; --vdep:#b36a00; --vkill:#b5452e;
+  --shadow:0 1px 2px rgba(20,30,50,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10131a; --panel:#181c26; --ink:#e7eaf0; --muted:#9aa3b5; --line:#2c3342; --line2:#232938;
+    --accent:#7fa2e0; --accent-ink:#0d1220; --focus:#8ab4f8;
+    --pass:#5d86bf; --cond:#8a8168; --fail:#d0624a; --na:#262b38; --unsc:#1d2230;
+    --amber:#f0b45a; --amber-bg:#3a2c14; --red:#ee8a74; --red-bg:#3b1f1a; --blue:#9bb9ee; --blue-bg:#1d2a45;
+    --teal:#6fd3c6; --teal-bg:#12332f; --grey-bg:#242938; --off:#3a4152; --cond-ink:#f4efe0;
+    --vallow:#9bb9ee; --vsup:#aab2c2; --vdep:#f0b45a; --vkill:#ee8a74;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10131a; --panel:#181c26; --ink:#e7eaf0; --muted:#9aa3b5; --line:#2c3342; --line2:#232938;
+  --accent:#7fa2e0; --accent-ink:#0d1220; --focus:#8ab4f8;
+  --pass:#5d86bf; --cond:#8a8168; --fail:#d0624a; --na:#262b38; --unsc:#1d2230;
+  --amber:#f0b45a; --amber-bg:#3a2c14; --red:#ee8a74; --red-bg:#3b1f1a; --blue:#9bb9ee; --blue-bg:#1d2a45;
+  --teal:#6fd3c6; --teal-bg:#12332f; --grey-bg:#242938; --off:#3a4152; --cond-ink:#f4efe0;
+  --vallow:#9bb9ee; --vsup:#aab2c2; --vdep:#f0b45a; --vkill:#ee8a74;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1320px;margin:0 auto;padding:0 16px 48px}
+header.top{padding:22px 0 10px}
+header.top h1{margin:0;font-size:1.55rem;line-height:1.2;letter-spacing:-.01em}
+header.top .sub{color:var(--muted);margin:4px 0 0;font-size:.9rem}
+.lead{max-width:78ch;margin:12px 0 0}
+.notice{margin:14px 0 0;padding:10px 14px;border:1px solid var(--line);border-left:4px solid var(--amber);background:var(--panel);border-radius:6px;font-size:.9rem;box-shadow:var(--shadow)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:16px;align-items:start}
+@media (min-width:1100px){.layout{grid-template-columns:330px minmax(0,1fr)}}
+aside.controls{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:var(--shadow)}
+@media (min-width:1100px){aside.controls{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+aside summary.ctls{cursor:pointer;font-weight:650;padding:2px 0 8px}
+@media (min-width:1100px){aside summary.ctls{display:none}}
+aside h2{margin:0 0 6px;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:650}
+.grp{padding:12px 0;border-top:1px solid var(--line2)}
+.grp:first-of-type{border-top:0;padding-top:0}
+.row{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;margin:8px 0}
+.row .lab{flex:1;min-width:0}
+.row .lab b{display:block;font-size:.9rem}
+.row .lab span{display:block;color:var(--muted);font-size:.8rem;line-height:1.35}
+.sw{flex:none;position:relative;width:44px;height:26px;border-radius:13px;border:1px solid var(--line);background:var(--accent);cursor:pointer;padding:0;transition:background .15s}
+.sw::after{content:"";position:absolute;top:2px;left:20px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.sw[aria-checked="false"]{background:var(--off)}
+.sw[aria-checked="false"]::after{left:2px}
+.state{display:block;font-size:.72rem;font-weight:650;margin-top:2px}
+.state.held{color:var(--accent)} .state.rem{color:var(--amber)}
+.seg{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 0}
+.seg button{flex:1 1 auto;border:1px solid var(--line);background:var(--panel);padding:6px 8px;border-radius:6px;cursor:pointer;font-size:.82rem;line-height:1.25;text-align:center}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 10px;cursor:pointer;font-size:.82rem}
+.chip[aria-pressed="true"]{background:var(--blue-bg);border-color:var(--accent);color:var(--blue)}
+.chip[aria-pressed="false"]{background:var(--grey-bg);color:var(--muted);text-decoration:line-through;border-style:dashed}
+.hint{color:var(--muted);font-size:.78rem;margin:6px 0 0}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82rem}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+label.chk{display:flex;gap:8px;align-items:flex-start;font-size:.88rem;cursor:pointer}
+label.chk input{margin-top:3px}
+.main{min-width:0}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow)}
+.tile .k{font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:650}
+.tile .v{font-size:1.9rem;font-weight:700;line-height:1.15;margin:2px 0}
+.tile .v small{font-size:.95rem;font-weight:500;color:var(--muted)}
+.tile .s{font-size:.8rem;color:var(--muted);line-height:1.35}
+.tile.hot .v{color:var(--teal)}
+.scen{margin:12px 0 0;padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font-size:.9rem}
+.scen b{font-weight:650}
+.scen .ok{color:var(--muted)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 8px;align-items:center}
+.toolbar input[type=search]{flex:1 1 220px;min-width:0;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:7px 10px}
+.toolbar select{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:7px 8px}
+.tw{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow-x:auto;box-shadow:var(--shadow)}
+table.m{border-collapse:separate;border-spacing:0;width:100%;min-width:900px}
+table.m th{position:sticky;top:0;background:var(--panel);z-index:2;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:650;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.m th.c{text-align:center;padding-left:0;padding-right:0;width:32px}
+table.m td{padding:7px 6px;border-bottom:1px solid var(--line2);vertical-align:middle}
+tr.gh td{background:var(--grey-bg);font-weight:650;font-size:.82rem;padding:6px 10px;color:var(--ink)}
+tr.gh td span{font-weight:500;color:var(--muted)}
+td.name{min-width:230px;max-width:290px}
+td.name button.nm{all:unset;cursor:pointer;display:block;font-weight:600;line-height:1.3}
+td.name button.nm:hover{text-decoration:underline}
+td.name button.nm:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+td.name .vd{display:block;font-size:.76rem;font-weight:650;margin-top:2px}
+.v-allow{color:var(--vallow)}.v-sup{color:var(--vsup)}.v-dep{color:var(--vdep)}.v-kill{color:var(--vkill)}
+td.name .rt{display:inline-block;font-size:.68rem;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-top:3px}
+table.m td.cell{width:32px;min-width:32px;padding:3px 1px;text-align:center}
+.cl{display:block;height:24px;line-height:24px;margin:0 1px;border-radius:3px;font-size:.8rem;font-weight:650;color:#fff;transition:opacity .15s}
+.cl.pass{background:var(--pass)} .cl.cond{background:var(--cond);color:var(--cond-ink)} .cl.fail{background:var(--fail)}
+.cl.na{background:var(--na);color:var(--muted)} .cl.unscored{background:var(--unsc);color:var(--muted);border:1px dashed var(--line)}
+.cl.off{opacity:.28;background-image:repeating-linear-gradient(135deg,transparent 0 4px,rgba(120,120,120,.55) 4px 5px)}
+td.cell.sep{border-left:1px solid var(--line)}
+td.rs{min-width:200px;max-width:300px}
+.rc{display:inline-block;font-size:.72rem;border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:0 5px;margin:1px 2px 1px 0;line-height:1.5}
+.rc.gone{text-decoration:line-through;color:var(--muted);border-style:dashed;background:var(--grey-bg)}
+.rc.fg{border-color:var(--accent)}
+td.st{min-width:190px;max-width:260px}
+.pill{display:inline-block;font-size:.74rem;font-weight:700;padding:1px 9px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+.pill.unchanged,.pill.stays{background:var(--grey-bg);color:var(--muted);border-color:var(--line)}
+.pill.affected{background:var(--amber-bg);color:var(--amber);border-color:var(--amber)}
+.pill.blocked{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.pill.closed{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.pill.opens{background:var(--blue-bg);color:var(--blue);border-color:var(--accent)}
+.pill.reopens{background:var(--teal-bg);color:var(--teal);border-color:var(--teal)}
+.stx{display:block;font-size:.76rem;color:var(--muted);margin-top:3px;line-height:1.3}
+tr.item.changed td{background:color-mix(in srgb,var(--amber-bg) 35%,transparent)}
+tr.item.reo td{background:color-mix(in srgb,var(--teal-bg) 55%,transparent)}
+tr.det td{background:var(--panel);padding:0}
+.dp{padding:12px 16px 16px 16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));border-bottom:1px solid var(--line)}
+.dp h3{margin:0 0 6px;font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:650}
+.dp ul{margin:0;padding:0;list-style:none;display:grid;gap:7px}
+.dp li{font-size:.86rem;line-height:1.4;padding:7px 9px;border:1px solid var(--line2);border-radius:6px;background:var(--bg)}
+.dp li.gone{opacity:.62}
+.dp li .tag{display:inline-block;font-size:.7rem;font-weight:700;border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-right:6px;background:var(--panel)}
+.dp li .meta{display:block;color:var(--muted);font-size:.76rem;margin-top:2px}
+.dp li.on{border-color:var(--amber);background:var(--amber-bg)}
+.dp li.on.blk{border-color:var(--red);background:var(--red-bg)}
+.dp li.on.opn{border-color:var(--accent);background:var(--blue-bg)}
+.dp li.on.nte{border-color:var(--line);background:var(--grey-bg)}
+.dp .full{grid-column:1/-1}
+.dp a{color:var(--accent)}
+.cellgrid{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:.84rem;align-items:start}
+.cellgrid .cl{width:26px;height:22px;line-height:22px}
+details.foot{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:2px 14px;box-shadow:var(--shadow)}
+details.foot summary{cursor:pointer;padding:10px 0;font-weight:650}
+details.foot .fb{padding:0 0 12px;font-size:.88rem;display:grid;gap:10px;max-width:90ch}
+details.foot p{margin:0}
+details.foot ul{margin:4px 0 0;padding-left:20px}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:640px){header.top h1{font-size:1.3rem}.tile .v{font-size:1.6rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>Assumptions and filters viewer</h1>
+  <p class="sub">MosaicTrace · Rare Disease, Real Kid: MVA Hackathon 2026 · Track 2 · 40 candidates for biallelic <i>BUB1B</i> MVA1</p>
+  <p class="lead">Remove an assumption or switch a filter off, and see which of the 40 candidates the report's own recorded reasons would no longer hold. The page reads the reasons written in the final report. It does not run a new screen.</p>
+  <div class="notice"><b>Research aid, not a treatment plan.</b> "Re-opens" means that no recorded reason for exclusion remains. The report did not assess those agents beyond the reasons it lists, and it does not endorse them. Ranks and unlock conditions are not recalculated.</div>
+</header>
+
+<div class="layout">
+<aside class="controls" aria-label="Substitutions">
+<details id="ctl" open><summary class="ctls">Substitutions: assumptions, assay inputs, filters</summary>
+  <div class="grp">
+    <h2>Assumptions (Section 3) and one patient fact (Table 22)</h2>
+    <div id="assumptions"></div>
+  </div>
+  <div class="grp">
+    <h2>Result of the p.(Asn1002Lys) assays (Table 12)</h2>
+    <div class="seg" id="outcomes" role="group" aria-label="Assay outcome"></div>
+    <p class="hint" id="outhint"></p>
+  </div>
+  <div class="grp">
+    <h2>Interferon-stimulated gene readout (Table 11, assay 7)</h2>
+    <div class="seg" id="isgseg" role="group" aria-label="ISG readout"></div>
+    <p class="hint" id="isghint"></p>
+  </div>
+  <div class="grp">
+    <h2>Treatment phase (Assumption P; Table 11, assay 9)</h2>
+    <div class="seg" id="phaseseg" role="group" aria-label="Treatment phase"></div>
+    <p class="hint" id="phasehint"></p>
+  </div>
+  <div class="grp">
+    <h2>Filters (Table 7) and gates (Table 8)</h2>
+    <div class="chips" id="filters" role="group" aria-label="Filters"></div>
+    <p class="hint">Click a filter to switch it off. Gates f7a, f7b and f8 apply to the 13 candidates that survived f1 to f7. Gates f7a and f7b lapse on their own when the treatment phase is set to off chemotherapy.</p>
+    <b style="font-size:.85rem;display:block;margin-top:10px">f4, nephrotoxicity</b>
+    <div class="seg" id="f4seg" role="group" aria-label="f4 rule"></div>
+    <p class="hint" id="f4hint"></p>
+  </div>
+  <div class="grp">
+    <h2>How reasons are read</h2>
+    <div class="seg" id="srcseg" role="group" aria-label="Reason source"></div>
+    <p class="hint" id="srchint"></p>
+    <label class="chk" style="margin-top:10px"><input type="checkbox" id="abs"> <span>Honour KILL-ABSOLUTE verdicts. These are mechanism-level (Table 9): "no dose, schedule or gate rescues it".</span></label>
+  </div>
+  <div class="grp">
+    <h2>Scenarios</h2>
+    <div class="btns" id="presets"></div>
+    <div class="btns">
+      <button class="btn" id="reset" type="button">Reset to the report</button>
+      <button class="btn" id="copylink" type="button">Copy link</button>
+      <button class="btn" id="dl" type="button">Download CSV</button>
+    </div>
+    <p class="hint" id="copied" aria-live="polite"></p>
+  </div>
+</details>
+</aside>
+
+<main class="main">
+  <section class="summary" id="summary" aria-label="Summary"></section>
+  <div class="scen" id="scen" aria-live="polite"></div>
+  <div class="toolbar">
+    <input type="search" id="q" placeholder="Search candidate, PMID or reason" aria-label="Search">
+    <select id="statf" aria-label="Show">
+      <option value="all">All 40 rows</option>
+      <option value="changed">Changed rows only</option>
+      <option value="reopens">Re-opens</option>
+      <option value="blocked">Blocked or closed</option>
+      <option value="affected">Affected</option>
+      <option value="excluded">Excluded rows</option>
+      <option value="kept">Ranked, supportive and review rows</option>
+    </select>
+    <button class="btn" id="expall" type="button">Expand all</button>
+  </div>
+  <div class="tw"><table class="m" id="tbl">
+    <thead><tr>
+      <th scope="col">Candidate and reported verdict</th>
+      <th scope="col" class="c" title="f1 lever">f1</th><th scope="col" class="c" title="f2 paediatric precedent">f2</th><th scope="col" class="c" title="f3 chromosomal-instability liability">f3</th><th scope="col" class="c" title="f4 nephrotoxicity (hard)">f4</th><th scope="col" class="c" title="f5 oncologic risk (hard)">f5</th><th scope="col" class="c" title="f6 senomorphic weighting">f6</th><th scope="col" class="c" title="f7 care compatibility">f7</th><th scope="col" class="c" title="Cytotoxic firewall (hard)">FW</th>
+      <th scope="col">Recorded reasons</th>
+      <th scope="col">Under this substitution</th>
+    </tr></thead>
+    <tbody id="tb"></tbody>
+  </table></div>
+  <p class="hint" style="margin-top:8px"><span class="cl pass" style="display:inline-block;width:20px;height:18px;line-height:18px;text-align:center">✓</span> passes (f4 passes with dose adjustment to measured GFR for renally cleared agents) &nbsp; <span class="cl cond" style="display:inline-block;width:20px;height:18px;line-height:18px;text-align:center">~</span> qualified or unknown &nbsp; <span class="cl fail" style="display:inline-block;width:20px;height:18px;line-height:18px;text-align:center">✗</span> fails &nbsp; <span class="cl na" style="display:inline-block;width:20px;height:18px;line-height:18px;text-align:center">–</span> not applicable &nbsp; <span class="cl unscored" style="display:inline-block;width:20px;height:18px;line-height:18px;text-align:center">·</span> not scored. Hatched cells belong to a filter that is switched off. These cells are Figure 2 of the report.</p>
+
+  <details class="foot">
+    <summary>What this page does, and what it does not</summary>
+    <div class="fb">
+      <p><b>How it works.</b> Each excluded candidate carries the reasons written for it in Tables 17 to 21 of the report, each coded to a filter (f1 to f7), the cytotoxic firewall (FW), a mechanism-level verdict (M, the KILL-ABSOLUTE tier), the oncology scope (O) or another candidate-specific reason (X). A reason lapses when its filter is switched off or when the assumption it rests on is removed (W for the senolytic reasons under f5 and f6, Q for every f4 reason, O for the out-of-scope reason). A candidate re-opens only when no recorded reason remains. Reason X is never removed by a switch.</p>
+      <p><b>Assay inputs.</b> The assay result (Table 12), the ISG readout (Table 11, assay 7) and the treatment phase (Table 11, assay 9) act only on ranked rows whose unlock conditions in Table 14 name them. On a ranked row, <i>Opens</i> means that an input meets one unlock condition and every other condition on the row still applies. <i>Blocked</i> means that an input fails one. Nothing is re-ranked. <i>Off chemotherapy</i> means remission is documented and the child is off cytotoxic drugs; the oncologist's agreement is not assumed.</p>
+      <p><b>Ranked, supportive and review rows</b> are not excluded, so they have no reasons to remove. Their ✗ and ~ cells are named constraints that the report carries into unlock conditions. These rows show dependency notes written from Section 8, Table 12 and Tables 13 to 16 instead.</p>
+      <p><b>Reason source.</b> "Report text" uses only the reasons the report writes out. Six of the nine KILL-ABSOLUTE rows carry a mechanism-level reason and no named filter. "Every ✗ in Figure 2" adds each failing cell of the figure, which is the more conservative reading. Both counts are shown in the summary.</p>
+      <p><b>Limits.</b></p>
+      <ul>
+        <li>No re-ranking. Positions and unlock conditions are those of Table 14.</li>
+        <li>Figure 2 is not a decision function. Some ✗ cells on excluded rows are not reasons the report gives, and some reasons the report gives are not ✗ cells.</li>
+        <li>Gates f7a, f7b and f8: the report records a row-level consequence only for f7a (glycerol phenylbutyrate). Switching f7b or f8 off changes no row here.</li>
+        <li>Strict f4 treats renal clearance alone as a failure. It affects anakinra, ruxolitinib, baricitinib and imeglimin, the four agents the report records as passes with dose adjustment (Section 5.3).</li>
+        <li>Not switchable here: the diagnostic assumptions (A to E, G, J, K), the evidence-level assumptions (H, I, L, M) and the design rules (R, S). They change the question or the unlock conditions, not a filter. Assumption N is covered by the assay outcome selector and Assumption P by the treatment-phase selector.</li>
+        <li>RMS is not one of the 20 assumptions in Section 3. It stands for the one patient fact that Table 22 marks as non-transferable, the rhabdomyosarcoma on which the arimoclomol exclusion rests. Removing it re-opens arimoclomol and changes no other row. The preset <i>General MVA1 family (Table 22)</i> removes RMS and Assumption Q and sets the phase to off chemotherapy. It leaves Assumptions O, T and W, the cytotoxic firewall, the assay result and the ISG readout as in the report.</li>
+        <li>Gate f8 has no row-level effect here whatever the phase. Table 22 keeps it when the backbone lapses.</li>
+        <li>The tumour-directed use of vincristine, paclitaxel and dasatinib sits under Assumption O. Removing O removes the out-of-scope reason; the report does not assess those uses.</li>
+      </ul>
+      <p><b>Data.</b> Cell statuses: Figure 2. Reasons: Tables 13 to 21. Assumptions: Section 3. Effects of W, Q and O: Sections 3 and 8. Assay outcomes: Table 12. ISG readout and treatment phase: Tables 11, 14 and 22. The same content is in <code>candidate_filter_matrix.csv</code>, <code>exclusion_reasons.csv</code> and <code>row_dependencies.csv</code>. Every PMID links to PubMed.</p>
+    </div>
+  </details>
+</main>
+</div>
+</div>
+
+<script>
+const DATA = {"assumptions":[{"id":"W","short":"Senescence is a tumour barrier","text":"Senescence is a tumour barrier as well as a source of inflammatory secretion. Weights senomorphic over senolytic options."},{"id":"Q","short":"Nephrotoxicity is a hard constraint","text":"Any add-on must pass a nephrotoxicity filter (f4). Nephrocalcinosis is observed."},{"id":"O","short":"Oncology is out of scope","text":"Oncology for the known rhabdomyosarcoma is out of scope. Removing it brings tumour-directed use into scope."},{"id":"T","short":"Off-label use is acceptable","text":"Off-label n-of-1 use is acceptable when harm is controlled. No MVA-labelled product exists."},{"id":"RMS","short":"The child had rhabdomyosarcoma","derived":true,"text":"Not one of the 20 assumptions in Section 3. It is the patient fact that Table 22 marks as non-transferable: the arimoclomol exclusion rests on rhabdomyosarcoma cells depending on cytosolic HSP70 (Section 6.5). Removing it tests a family with another tumour type, or none."}],"filters":[{"id":"f1","label":"f1 lever","q":"Does the agent act on the named lever, or only on a downstream consequence?"},{"id":"f2","label":"f2 paediatric precedent","q":"Is there human paediatric exposure data, ideally down to infancy?"},{"id":"f3","label":"f3 CIN liability","q":"Does the agent add to, or select for, chromosomal instability?"},{"id":"f4","label":"f4 nephrotoxicity","q":"Does it add renal or calcium-loading burden to existing nephrocalcinosis? (hard)"},{"id":"f5","label":"f5 oncologic risk","q":"Does it remove a proliferation brake in a child with a prior sarcoma? (hard)"},{"id":"f6","label":"f6 senomorphic weighting","q":"Where both exist for one target, is the senomorphic option preferred over the senolytic?"},{"id":"f7","label":"f7 care compatibility","q":"Does it survive contact with the treatment context and the drug backbone?"},{"id":"FW","label":"Cytotoxic firewall","q":"Any agent whose approved or intended mechanism is cytotoxicity, or clearance of dividing or senescent cells, is excluded (hard)."},{"id":"f7a","label":"f7a CYP3A4 and P-gp","q":"Inducers or inhibitors that could change vincristine exposure are restricted to chemotherapy-free intervals. Lapses when the backbone is not active (Table 22)."},{"id":"f7b","label":"f7b acrolein","q":"Agents that add lipid-peroxidation or bladder-mucosal burden are down-weighted against cyclophosphamide exposure. Lapses when the backbone is not active (Table 22)."},{"id":"f8","label":"f8 myelosuppression","q":"Agents that suppress marrow are weighted against, given constitutional instability and a myelosuppressive backbone. Stays when the backbone is not active, because it rests partly on constitutional instability (Table 22)."}],"outcomes":[{"id":"unmeasured","label":"Not measured","hint":"As in the report: the stability and function of p.(Asn1002Lys) are untested (Assumption N is unresolved)."},{"id":"unstable","label":"Unstable","hint":"Table 12: the abundance arm can open. TUDCA, glycerol phenylbutyrate and NR/NMN become eligible, each on its own unlock condition. A substrate-selective degradation blocker does not exist (Section 7)."},{"id":"stable","label":"Stable, impaired","hint":"Table 12: the abundance arm stays closed. No candidate repairs a defect at the PP2A-B56 interface. The IL-1 arm is not affected."},{"id":"neutral","label":"Near-neutral","hint":"Table 12: no agent is started on the strength of this report. The working diagnosis is revisited first."}],"isgOutcomes":[{"id":"unmeasured","label":"Not measured","hint":"As in the report: the ISG readout has not been run, so unlock condition 1 for anakinra is untested (Table 14)."},{"id":"positive","label":"Positive","hint":"Table 14, condition 1 is met for anakinra, and for canakinumab through the anakinra conditions. The other conditions still apply."},{"id":"negative","label":"Negative","hint":"Condition 1 is not met. Table 22 applies the IL-1 arm only where the readout shows an active programme, so anakinra and canakinumab are blocked. The other four ranked agents are not affected."}],"phases":[{"id":"unknown","label":"Unknown","hint":"As in the report: the child's treatment phase is not known (Assumption P). Gates f7a, f7b and f8 are carried as written."},{"id":"active","label":"On chemotherapy","hint":"The chemotherapy backbone is active. Unlock conditions that need the child off cytotoxic drugs are not met (Table 14). Gates f7a and f7b stay in force."},{"id":"off","label":"Off chemotherapy","hint":"Remission is documented and the child is off cytotoxic drugs. Gates f7a and f7b lapse with the backbone and f8 stays (Table 22). The oncologist's agreement and the other unlock conditions in Table 14 are not assumed."}],"presets":[{"label":"Remove W","off":["W"]},{"label":"Remove Q","off":["Q"]},{"label":"Oncology in scope","off":["O"]},{"label":"No off-label use","off":["T"]},{"label":"Strict f4","f4":"strict"},{"label":"Drop f2 and f7","off":["f2","f7"]},{"label":"Assay: unstable","out":"unstable"},{"label":"General MVA1 family (Table 22)","off":["RMS","Q"],"phase":"off","title":"Table 22: removes the rhabdomyosarcoma premise (RMS) and Assumption Q, and sets the phase to off chemotherapy, so gates f7a and f7b lapse. Assumptions O, T and W, the cytotoxic firewall, the assay result and the ISG readout are left as in the report."}],"groupOrder":["Ranked, gated","Supportive","Deprescribe pending work-up","Outside the therapeutic question","Group 1. Clearance of senescent or dividing cells","Group 2. Mitotic machinery and the checkpoint","Group 3. Immune sensing and inflammatory signalling","Group 4. Renal burden and growth","Group 5. Chaperone, NAD-axis, antioxidant and polyamine agents"],"candidates":[{"id":"anakinra","name":"Anakinra","fig":"1  Anakinra","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Ranked, gated","kind":"ranked","verdict":"ALLOW-CONTINGENT, rank 1","rank":1,"table":"Table 14","pmids":["24062309"],"cells":{"f1":"pass","f2":"pass","f3":"pass","f4":"pass","f5":"cond","f6":"pass","f7":"pass"},"fw":false,"renal":true,"absolute":false,"note":null,"reasons":[],"deps":[{"id":"anakinra-d1","origin":"explicit","kind":"assumption","key":"W","effect":"affected","text":"Section 8 names W as a reason the senomorphic anakinra is preferred. Section 6.3 gives reversibility (half-life 4 to 6 hours, Kineret SmPC section 5.2) as the main reason for rank 1 and W as a further fit. Without W the reversibility argument remains."},{"id":"anakinra-d2","origin":"explicit","kind":"assumption","key":"T","effect":"blocked","text":"Assumption T allows off-label n-of-1 use; without it no agent without an MVA indication can be used. Anakinra's proposed use is outside the authorised indications (Kineret SmPC section 4.2); an explicit acknowledgement of off-label use is an unlock condition."},{"id":"anakinra-d3","origin":"explicit","kind":"f4rule","key":"strict","effect":"blocked","text":"Under the strict rule (renal clearance alone fails f4) anakinra fails a hard filter, because the kidney clears it (SmPC section 5.2). The report records f4 as a pass with dose adjustment to measured GFR (Section 5.3; Appendix A, entry 11)."},{"id":"anakinra-d4","origin":"explicit","kind":"filter","key":"f4","effect":"note","text":"Switching f4 off does not remove the dose condition. It comes from the label (SmPC section 4.2) and stays in Table 14, condition 5."},{"id":"anakinra-d5","origin":"explicit","kind":"filter","key":"f5","effect":"affected","text":"The f5 cell is qualified (no cancer-incidence dataset comparable to CANTOS). The SmPC statement that use with pre-existing malignancy 'is not recommended' (section 4.4) stays in the label, and the remission, oncologist and off-label conditions stay in Table 14."},{"id":"anakinra-d6","origin":"explicit","kind":"outcome","key":"neutral","effect":"blocked","text":"No agent is started on the strength of this report. The child would be functionally a carrier at this allele, and the working diagnosis is revisited first (Table 12)."},{"id":"anakinra-d7","origin":"explicit","kind":"outcome","key":"unstable","effect":"note","text":"The IL-1 arm is not affected by this assay outcome (Table 12)."},{"id":"anakinra-d8","origin":"explicit","kind":"outcome","key":"stable","effect":"note","text":"The IL-1 arm is not affected by this assay outcome (Table 12)."},{"id":"anakinra-d9","origin":"explicit","kind":"isg","key":"positive","effect":"opens","text":"A positive ISG readout meets unlock condition 1 (an inflammatory programme is running, Table 14). The other five conditions still apply: remission, off cytotoxics, neutrophil count, GFR-based dosing and the off-label acknowledgement."},{"id":"anakinra-d10","origin":"explicit","kind":"isg","key":"negative","effect":"blocked","text":"A negative ISG readout fails unlock condition 1 (Table 14). Table 22 applies the IL-1 arm only where the readout shows an active programme."},{"id":"anakinra-d11","origin":"explicit","kind":"phase","key":"active","effect":"blocked","text":"On chemotherapy: unlock condition 3 (the child is off cytotoxic drugs) is not met (Table 14)."},{"id":"anakinra-d12","origin":"explicit","kind":"phase","key":"off","effect":"opens","text":"Off chemotherapy with remission documented: condition 3 (off cytotoxic drugs) and the documentation half of condition 2 are met (Table 14). The oncologist's agreement and the other conditions still apply."}],"constraints":{"f4":"Recorded as a pass with dose adjustment to measured GFR (Section 5.3). The baseline screen read: Renally cleared; clearance falls substantially in significant renal impairment and dosing interval must be extended, so a measured GFR is a precondition rather than a formality","f5":"No cancer-incidence dataset comparable to CANTOS"}},{"id":"taurursodiol-tudca","name":"Taurursodiol / TUDCA","fig":"2  Taurursodiol / TUDCA","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Ranked, gated","kind":"ranked","verdict":"ALLOW-CONTINGENT, rank 2","rank":2,"table":"Table 14","pmids":["31356639"],"cells":{"f1":"fail","f2":"pass","f3":"pass","f4":"pass","f5":"pass","f6":"na","f7":"pass"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[],"deps":[{"id":"taurursodiol-tudca-d1","origin":"explicit","kind":"assumption","key":"T","effect":"blocked","text":"Assumption T allows off-label n-of-1 use; without it no agent without an MVA indication can be used. No medicinal-product label for taurursodiol was located (Section 5.4); the verdict rests on the cited literature."},{"id":"taurursodiol-tudca-d2","origin":"explicit","kind":"filter","key":"f1","effect":"affected","text":"The f1 cell fails (ER-stress suppressor; BUBR1 is a soluble nucleocytoplasmic protein; target unidentified). The partial mechanistic fit stays stated in Table 14 whatever the filter does."},{"id":"taurursodiol-tudca-d3","origin":"explicit","kind":"outcome","key":"unstable","effect":"opens","text":"The abundance arm can open. This agent becomes eligible, on its own unlock condition (Table 12)."},{"id":"taurursodiol-tudca-d4","origin":"explicit","kind":"outcome","key":"stable","effect":"closed","text":"The abundance arm stays closed: a stable but functionally silent allele is not made useful by raising its abundance (Assumption N, Table 12)."},{"id":"taurursodiol-tudca-d5","origin":"explicit","kind":"outcome","key":"neutral","effect":"blocked","text":"No agent is started on the strength of this report. The child would be functionally a carrier at this allele, and the working diagnosis is revisited first (Table 12)."}],"constraints":{"f1":"TUDCA is an ER-stress suppressor acting on ER-luminal and membrane clients; BUBR1 is a soluble nucleocytoplasmic kinetochore protein cleared by the ubiquitin-proteasome system"}},{"id":"trehalose","name":"Trehalose","fig":"3  Trehalose","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Ranked, gated","kind":"ranked","verdict":"ALLOW-CONTINGENT, rank 3","rank":3,"table":"Table 14","pmids":["26404941","17145780","35907433","29996716","41820377"],"cells":{"f1":"cond","f2":"cond","f3":"pass","f4":"pass","f5":"pass","f6":"na","f7":"cond"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[],"deps":[{"id":"trehalose-d1","origin":"explicit","kind":"assumption","key":"W","effect":"affected","text":"The caution that sets trehalose's start condition (documented remission) is Assumption W: an autophagy inducer is pro-survival and could help damaged cells persist (Section 6.3). The report names W as the basis for that condition and gives no other (Section 8)."},{"id":"trehalose-d2","origin":"explicit","kind":"assumption","key":"T","effect":"blocked","text":"Assumption T allows off-label n-of-1 use; without it no agent without an MVA indication can be used. No medicinal-product label was located for trehalose (Section 5.4)."},{"id":"trehalose-d3","origin":"explicit","kind":"filter","key":"f7","effect":"affected","text":"The route of administration is unresolved. It stays an unlock condition (Table 14, condition 3)."},{"id":"trehalose-d4","origin":"explicit","kind":"outcome","key":"neutral","effect":"blocked","text":"No agent is started on the strength of this report. The child would be functionally a carrier at this allele, and the working diagnosis is revisited first (Table 12)."},{"id":"trehalose-d5","origin":"explicit","kind":"phase","key":"active","effect":"blocked","text":"On chemotherapy: unlock condition 2 (the child is off cytotoxic drugs) is not met (Table 14)."},{"id":"trehalose-d6","origin":"explicit","kind":"phase","key":"off","effect":"opens","text":"Off chemotherapy with remission documented: condition 2 (off cytotoxic drugs) and the documentation half of condition 1 are met (Table 14). The oncologist's agreement and condition 3 (a route and dose with human exposure data) still apply."},{"id":"trehalose-d7","origin":"auto","kind":"filter","key":"f1","effect":"affected","text":"The f1 cell is qualified: Targets proteotoxic load, which is a real aneuploidy stress. With f1 off this named constraint is no longer applied; the row's stated conditions in the report stay as written."},{"id":"trehalose-d8","origin":"auto","kind":"filter","key":"f2","effect":"affected","text":"The f2 cell is qualified: Orphan evaluation in storage and neurodegenerative phenotypes. With f2 off this named constraint is no longer applied; the row's stated conditions in the report stay as written."}],"constraints":{"f1":"Targets proteotoxic load, which is a real aneuploidy stress","f2":"Orphan evaluation in storage and neurodegenerative phenotypes","f7":"Route of administration unresolved; the report requires a route with human exposure data (Table 14, condition 3)"}},{"id":"nicotinamide-riboside-nr-nmn","name":"Nicotinamide riboside (NR) / NMN","fig":"4  Nicotinamide riboside / NMN","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Ranked, gated","kind":"ranked","verdict":"ALLOW-CONTINGENT, rank 4","rank":4,"table":"Table 14","pmids":["24825348","41724424","28246130"],"cells":{"f1":"cond","f2":"cond","f3":"pass","f4":"pass","f5":"fail","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[],"deps":[{"id":"nicotinamide-riboside-nr-nmn-d1","origin":"explicit","kind":"assumption","key":"W","effect":"note","text":"Not affected. The remission condition on NR and NMN rests on separate evidence that vitamin B3 derivatives support tumour-cell survival and would stay (Section 8)."},{"id":"nicotinamide-riboside-nr-nmn-d2","origin":"explicit","kind":"assumption","key":"T","effect":"blocked","text":"Assumption T allows off-label n-of-1 use; without it no agent without an MVA indication can be used. No licensed medicine label for NR or NMN was found (Table 14)."},{"id":"nicotinamide-riboside-nr-nmn-d3","origin":"explicit","kind":"filter","key":"f5","effect":"affected","text":"The f5 cell fails (class evidence that vitamin B3 derivatives support tumour-cell survival, PMID 41724424). The evidence and the remission condition stay in the report as written; the report judges this oncologic risk to be neither detectable nor reversible."},{"id":"nicotinamide-riboside-nr-nmn-d4","origin":"explicit","kind":"filter","key":"f7","effect":"affected","text":"The f7 cell fails on chemotherapy. The off-cytotoxic-therapy condition stays in Table 14, condition 2."},{"id":"nicotinamide-riboside-nr-nmn-d5","origin":"explicit","kind":"outcome","key":"unstable","effect":"opens","text":"The abundance arm can open. This agent becomes eligible, on its own unlock condition (Table 12)."},{"id":"nicotinamide-riboside-nr-nmn-d6","origin":"explicit","kind":"outcome","key":"stable","effect":"closed","text":"The abundance arm stays closed: a stable but functionally silent allele is not made useful by raising its abundance (Assumption N, Table 12)."},{"id":"nicotinamide-riboside-nr-nmn-d7","origin":"explicit","kind":"outcome","key":"neutral","effect":"blocked","text":"No agent is started on the strength of this report. The child would be functionally a carrier at this allele, and the working diagnosis is revisited first (Table 12)."},{"id":"nicotinamide-riboside-nr-nmn-d8","origin":"explicit","kind":"phase","key":"active","effect":"blocked","text":"On chemotherapy: unlock condition 2 (the child is off cytotoxic drugs) is not met (Table 14)."},{"id":"nicotinamide-riboside-nr-nmn-d9","origin":"explicit","kind":"phase","key":"off","effect":"opens","text":"Off chemotherapy with remission documented: condition 2 (off cytotoxic drugs) and the documentation half of condition 1 are met (Table 14). The oncologist's agreement, the blot result (condition 3) and the in-vitro rise in BUBR1 (condition 4) still apply."},{"id":"nicotinamide-riboside-nr-nmn-d10","origin":"auto","kind":"filter","key":"f1","effect":"affected","text":"The f1 cell is qualified: NMN raises BubR1 abundance in aged wild-type mouse tissue (PMID 24825348); it was not the intervention that extended lifespan in the hypomorph. With f1 off this named constraint is no longer applied; the row's stated conditions in the report stay as written."},{"id":"nicotinamide-riboside-nr-nmn-d11","origin":"auto","kind":"filter","key":"f2","effect":"affected","text":"The f2 cell is qualified: Supplement use and mitochondrial-myopathy trials exist; no MVA data. With f2 off this named constraint is no longer applied; the row's stated conditions in the report stay as written."}],"constraints":{"f1":"NMN raises BubR1 abundance in aged wild-type mouse tissue (PMID 24825348); it was not the intervention that extended lifespan in the hypomorph","f2":"Supplement use and mitochondrial-myopathy trials exist; no MVA data","f5":"Class evidence for tumour-cell survival and chemoresistance support","f7":"A chemoresistance-supporting supplement must not overlap active cytotoxic treatment"}},{"id":"glycerol-phenylbutyrate","name":"Glycerol phenylbutyrate","fig":"5  Glycerol phenylbutyrate","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Ranked, gated","kind":"ranked","verdict":"ALLOW-CONTINGENT, rank 5","rank":5,"table":"Table 14","pmids":["34125423","10666020","11404244"],"cells":{"f1":"fail","f2":"pass","f3":"cond","f4":"pass","f5":"cond","f6":"na","f7":"cond"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[],"deps":[{"id":"glycerol-phenylbutyrate-d1","origin":"explicit","kind":"assumption","key":"T","effect":"blocked","text":"Assumption T allows off-label n-of-1 use; without it no agent without an MVA indication can be used. The licensed use is urea cycle disorders, so this use is off-label (Section 6.3)."},{"id":"glycerol-phenylbutyrate-d2","origin":"explicit","kind":"gate","key":"f7a","effect":"affected","text":"The label records weak CYP3A4 induction (SmPC section 4.5), which may lower vincristine exposure. The report ties the chemotherapy-free interval condition to it (Table 14, condition 2). Gate f7a lapses when the chemotherapy backbone is not active (Table 22)."},{"id":"glycerol-phenylbutyrate-d3","origin":"explicit","kind":"filter","key":"f1","effect":"affected","text":"The f1 cell fails (same ER-client mismatch as TUDCA). The report retains the agent because it dominates sodium 4-phenylbutyrate on other axes."},{"id":"glycerol-phenylbutyrate-d4","origin":"explicit","kind":"filter","key":"f3","effect":"affected","text":"The f3 cell is qualified for the weak deacetylase-inhibitor activity, scored consistently with the vorinostat row. The open HSF1 and deacetylase question stays as unlock condition 3 in Table 14."},{"id":"glycerol-phenylbutyrate-d5","origin":"explicit","kind":"filter","key":"f7","effect":"affected","text":"Phenylacetate exposure has been reported to correlate with neurologic adverse events in patients with cancer; PMID 34125423 restates this and found no correlation in hepatic encephalopathy. The monitoring and stop rule stay in Table 15."},{"id":"glycerol-phenylbutyrate-d6","origin":"explicit","kind":"outcome","key":"unstable","effect":"opens","text":"The abundance arm can open. This agent becomes eligible, on its own unlock condition (Table 12)."},{"id":"glycerol-phenylbutyrate-d7","origin":"explicit","kind":"outcome","key":"stable","effect":"closed","text":"The abundance arm stays closed: a stable but functionally silent allele is not made useful by raising its abundance (Assumption N, Table 12)."},{"id":"glycerol-phenylbutyrate-d8","origin":"explicit","kind":"outcome","key":"neutral","effect":"blocked","text":"No agent is started on the strength of this report. The child would be functionally a carrier at this allele, and the working diagnosis is revisited first (Table 12)."},{"id":"glycerol-phenylbutyrate-d9","origin":"explicit","kind":"phase","key":"active","effect":"blocked","text":"On chemotherapy: unlock condition 2 (a chemotherapy-free interval) is not met, and gate f7a stays in force (Table 14, Table 22)."},{"id":"glycerol-phenylbutyrate-d10","origin":"explicit","kind":"phase","key":"off","effect":"opens","text":"Off chemotherapy: condition 2 (a chemotherapy-free interval) is met (Table 14). Conditions 1 and 3 still apply. Gate f7a lapses with the backbone (Table 22)."},{"id":"glycerol-phenylbutyrate-d11","origin":"auto","kind":"filter","key":"f5","effect":"affected","text":"The f5 cell is qualified: UNKNOWN. With f5 off this named constraint is no longer applied; the row's stated conditions in the report stay as written."}],"constraints":{"f1":"Same ER-client mismatch as 4-PBA and TUDCA; retained only because it dominates 4-PBA on every other axis","f3":"Same low-affinity HDAC caveat as 4-PBA; scored CONDITIONAL not PASS, for internal consistency with the vorinostat row","f5":"UNKNOWN","f7":"Phenylacetic acid and phenylacetylglutamine exposures correlate with neurologic adverse events in some populations (PMID 34125423); requires PAA monitoring"}},{"id":"canakinumab","name":"Canakinumab","fig":"6  Canakinumab","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Ranked, gated","kind":"ranked","verdict":"ALLOW-CONTINGENT, rank 6","rank":6,"table":"Table 14","pmids":["28855077"],"cells":{"f1":"pass","f2":"pass","f3":"pass","f4":"pass","f5":"pass","f6":"pass","f7":"cond"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[],"deps":[{"id":"canakinumab-d1","origin":"explicit","kind":"assumption","key":"T","effect":"blocked","text":"Assumption T allows off-label n-of-1 use; without it no agent without an MVA indication can be used. The report states that the CANTOS trial 'cannot carry an indication in a child' (Section 6.3)."},{"id":"canakinumab-d2","origin":"explicit","kind":"filter","key":"f7","effect":"affected","text":"The terminal half-life of 26 days stays the stated reason for deferring canakinumab behind anakinra (Table 14)."},{"id":"canakinumab-d3","origin":"explicit","kind":"outcome","key":"neutral","effect":"blocked","text":"No agent is started on the strength of this report. The child would be functionally a carrier at this allele, and the working diagnosis is revisited first (Table 12)."},{"id":"canakinumab-d4","origin":"explicit","kind":"outcome","key":"unstable","effect":"note","text":"The IL-1 arm is not affected by this assay outcome (Table 12)."},{"id":"canakinumab-d5","origin":"explicit","kind":"outcome","key":"stable","effect":"note","text":"The IL-1 arm is not affected by this assay outcome (Table 12)."},{"id":"canakinumab-d6","origin":"explicit","kind":"isg","key":"positive","effect":"opens","text":"A positive ISG readout meets anakinra condition 1, which canakinumab inherits ('every anakinra condition is met', Table 14). Its other conditions still apply."},{"id":"canakinumab-d7","origin":"explicit","kind":"isg","key":"negative","effect":"blocked","text":"A negative ISG readout fails anakinra condition 1. Canakinumab requires every anakinra condition (Table 14), and Table 22 applies the IL-1 arm only where the readout shows an active programme."},{"id":"canakinumab-d8","origin":"explicit","kind":"phase","key":"active","effect":"blocked","text":"On chemotherapy: canakinumab requires every anakinra condition, including condition 3 (the child is off cytotoxic drugs) (Table 14)."},{"id":"canakinumab-d9","origin":"explicit","kind":"phase","key":"off","effect":"opens","text":"Off chemotherapy with remission documented: the anakinra conditions on cytotoxics and the documentation half of the remission condition are met (Table 14). Every other anakinra condition, kidney stability and the infection and immunisation plan still apply."}],"constraints":{"f7":"Infection risk is the binding constraint over an unknown chemotherapy interval"}},{"id":"ursodeoxycholic-acid-udca","name":"Ursodeoxycholic acid (UDCA)","fig":"Ursodeoxycholic acid (UDCA)","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Supportive","kind":"supportive","verdict":"SUPPORTIVE","rank":null,"table":"Table 16","pmids":[],"cells":{"f1":"fail","f2":"pass","f3":"pass","f4":"pass","f5":"cond","f6":"na","f7":"pass"},"fw":false,"renal":false,"absolute":false,"note":"Listed only because it carries a paediatric label, which separates it from TUDCA (Section 6.4).","reasons":[],"deps":[{"id":"ursodeoxycholic-acid-udca-d1","origin":"auto","kind":"filter","key":"f1","effect":"affected","text":"The f1 cell fails: Weaker chaperone than TUDCA and the same compartment mismatch. With f1 off this named constraint is no longer applied; the row's stated conditions in the report stay as written."},{"id":"ursodeoxycholic-acid-udca-d2","origin":"auto","kind":"filter","key":"f5","effect":"affected","text":"The f5 cell is qualified: High-dose UDCA has a debated neoplasia signal in adult colitis-associated surveillance; not applicable at paediatric cholestasis doses but not ignorable. With f5 off this named constraint is no longer applied; the row's stated conditions in the report stay as written."}],"constraints":{"f1":"Weaker chaperone than TUDCA and the same compartment mismatch","f5":"High-dose UDCA has a debated neoplasia signal in adult colitis-associated surveillance; not applicable at paediatric cholestasis doses but not ignorable"}},{"id":"potassium-citrate","name":"Potassium citrate","fig":"Potassium citrate","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Supportive","kind":"supportive","verdict":"SUPPORTIVE-CONTINGENT","rank":null,"table":"Table 16","pmids":["39325135"],"cells":{"f1":"na","f2":"pass","f3":"pass","f4":"pass","f5":"pass","f6":"na","f7":"pass"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[],"deps":[{"id":"potassium-citrate-d1","origin":"explicit","kind":"assumption","key":"T","effect":"affected","text":"The only UK-authorised product located is indicated for dysuria in mild urinary tract infection, so use here is outside its label and needs measured GFR (Table 16)."}],"constraints":{}},{"id":"thiazide-diuretic-hydrochlorothiazide","name":"Thiazide diuretic (hydrochlorothiazide)","fig":"Thiazide (hydrochlorothiazide)","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Supportive","kind":"supportive","verdict":"SUPPORTIVE-CONTINGENT","rank":null,"table":"Table 16","pmids":["35348900","37684572"],"cells":{"f1":"na","f2":"pass","f3":"pass","f4":"pass","f5":"pass","f6":"na","f7":"cond"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[],"deps":[{"id":"thiazide-diuretic-hydrochlorothiazide-d1","origin":"auto","kind":"filter","key":"f7","effect":"affected","text":"The f7 cell is qualified: Volume status and electrolytes in a child with failure to thrive. With f7 off this named constraint is no longer applied; the row's stated conditions in the report stay as written."}],"constraints":{"f7":"Volume status and electrolytes in a child with failure to thrive"}},{"id":"routine-vitamin-d-supplementation","name":"Routine vitamin D supplementation","fig":"Routine vitamin D","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Deprescribe pending work-up","kind":"deprescribe","verdict":"DEPRESCRIBE-PENDING-WORKUP","rank":null,"table":"Table 13","pmids":["26047794","38780860","34774244","35348900"],"cells":{"f1":"na","f2":"pass","f3":"pass","f4":"fail","f5":"na","f6":"na","f7":"cond"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[],"deps":[{"id":"routine-vitamin-d-supplementation-d1","origin":"explicit","kind":"assumption","key":"Q","effect":"affected","text":"The review of this exposure rests on the nephrotoxicity constraint (Assumption Q). The colecalciferol label contraindication (SmPC section 4.3) and the nephrocalcinosis gene pass (Table 11) are facts that do not depend on it."},{"id":"routine-vitamin-d-supplementation-d2","origin":"explicit","kind":"filter","key":"f4","effect":"affected","text":"The f4 cell is the basis for the review of this exposure. The label contraindication (SmPC section 4.3) and the gene pass (Table 11) stay."}],"constraints":{"f4":"Vitamin D is a recognised acquired contributor to neonatal nephrocalcinosis, and in CYP24A1 or SLC34A1/SLC34A3 phenotypes standard supplementation causes hypercalcaemia and progressive nephrocalcinosis","f7":"This is the one item on the list that may already be on the chart"}},{"id":"loop-diuretics-furosemide-chronic-use","name":"Loop diuretics (furosemide), chronic use","fig":"Furosemide (chronic use)","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Deprescribe pending work-up","kind":"deprescribe","verdict":"DEPRESCRIBE-PENDING-WORKUP, chronic use only","rank":null,"table":"Table 13","pmids":["35348900","37684572"],"cells":{"f1":"na","f2":"pass","f3":"pass","f4":"fail","f5":"na","f6":"na","f7":"cond"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[],"deps":[{"id":"loop-diuretics-furosemide-chronic-use-d1","origin":"explicit","kind":"assumption","key":"Q","effect":"affected","text":"The review of this exposure rests on the nephrotoxicity constraint (Assumption Q). The furosemide label statement on premature infants (SmPC section 4.4) and the two observational studies cited in Table 13 do not depend on it."},{"id":"loop-diuretics-furosemide-chronic-use-d2","origin":"explicit","kind":"filter","key":"f4","effect":"affected","text":"The f4 cell is the basis for the review of this exposure. The label statement (SmPC section 4.4) and the cited studies stay."}],"constraints":{"f4":"Among the best-established acquired causes of nephrocalcinosis in preterm and very-low-birth-weight infants","f7":"The frame already flags that a furosemide history is missing from the file"}},{"id":"miglustat","name":"Miglustat","fig":"Miglustat","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Outside the therapeutic question","kind":"outside","verdict":"NOT-A-CANDIDATE","rank":null,"table":"Section 6.5","pmids":["40663813"],"cells":{"f1":"na","f2":"pass","f3":"pass","f4":"cond","f5":"na","f6":"na","f7":"na"},"fw":false,"renal":false,"absolute":false,"note":"Entered the screen only because the US approval of arimoclomol is in combination with miglustat. It has no BUBR1 or checkpoint rationale.","reasons":[],"deps":[],"constraints":{"f4":"Renally excreted; would need GFR review if ever used"}},{"id":"dasatinib-plus-quercetin","name":"Dasatinib plus quercetin","fig":"Dasatinib + quercetin","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 1. Clearance of senescent or dividing cells","kind":"excluded","verdict":"KILL-ABSOLUTE","rank":null,"table":"Table 17","pmids":["22048312"],"cells":{"f1":"pass","f2":"cond","f3":"pass","f4":"pass","f5":"fail","f6":"fail","f7":"fail"},"fw":true,"renal":false,"absolute":true,"note":null,"reasons":[{"id":"dasatinib-plus-quercetin-r1","code":"FW","basis":null,"text":"Its intended use here is senolytic clearance, which fails the firewall","src":"Table 17","src_from":"report"},{"id":"dasatinib-plus-quercetin-r2","code":"f5","basis":"W","text":"Removes a senescence brake and suppresses a chromosome-fragile marrow","src":"Table 17","src_from":"report"},{"id":"dasatinib-plus-quercetin-r3","code":"f6","basis":"W","text":"Senolytic where a senomorphic exists","src":"Table 17","src_from":"report"},{"id":"dasatinib-plus-quercetin-r4","code":"f7","basis":null,"text":"Myelosuppression and pleural effusion overlap the rhabdomyosarcoma pathway","src":"Table 17","src_from":"report"},{"id":"dasatinib-plus-quercetin-r5","code":"M","basis":null,"text":"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it","src":"Table 9","src_from":"report"}],"deps":[{"id":"dasatinib-plus-quercetin-d1","origin":"explicit","kind":"assumption","key":"O","effect":"note","text":"The renal filter is not the problem (clearance is hepatic). Dasatinib alone remains an oncology decision (Assumption O): with O removed that decision comes into scope, and this report does not assess it."}],"constraints":{}},{"id":"fisetin","name":"Fisetin","fig":"Fisetin","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 1. Clearance of senescent or dividing cells","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 17","pmids":["30279143"],"cells":{"f1":"pass","f2":"fail","f3":"pass","f4":"pass","f5":"fail","f6":"fail","f7":"cond"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[{"id":"fisetin-r1","code":"f5","basis":"W","text":"Senolytic: fails f5 (hard)","src":"Table 17","src_from":"report"},{"id":"fisetin-r2","code":"f6","basis":"W","text":"Senolytic where a senomorphic exists","src":"Table 17","src_from":"report"},{"id":"fisetin-r3","code":"f2","basis":null,"text":"No paediatric data, and the product is supplement-grade","src":"Table 17","src_from":"report"}],"deps":[],"constraints":{}},{"id":"ubx1325-foselutoclax","name":"UBX1325 (foselutoclax)","fig":"UBX1325 (foselutoclax)","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 1. Clearance of senescent or dividing cells","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 17","pmids":["38321220"],"cells":{"f1":"fail","f2":"fail","f3":"pass","f4":"na","f5":"fail","f6":"fail","f7":"fail"},"fw":false,"renal":false,"absolute":false,"note":"An intravitreal senolytic with no systemic formulation; its platelet-sparing advantage belongs to local ocular dosing and is not a demonstrated systemic safety margin.","reasons":[{"id":"ubx1325-foselutoclax-r1","code":"f5","basis":"W","text":"Senolytic: fails f5","src":"Table 17","src_from":"report"},{"id":"ubx1325-foselutoclax-r2","code":"f6","basis":"W","text":"Senolytic where a senomorphic exists","src":"Table 17","src_from":"report"}],"deps":[],"constraints":{}},{"id":"navitoclax-and-the-bcl-2-family-senolytic-class","name":"Navitoclax and the BCL-2-family senolytic class","fig":"Navitoclax / BCL-2-family class","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Group 1. Clearance of senescent or dividing cells","kind":"excluded","verdict":"KILL, CLASS-LEVEL","rank":null,"table":"Table 17","pmids":["26711051","25942994"],"cells":{"f1":"pass","f2":"fail","f3":"pass","f4":"pass","f5":"fail","f6":"fail","f7":"fail"},"fw":true,"renal":false,"absolute":false,"note":null,"reasons":[{"id":"navitoclax-and-the-bcl-2-family-senolytic-class-r1","code":"FW","basis":null,"text":"Used here as a senolytic (PMID 26711051), so it fails the firewall","src":"Table 17","src_from":"report"},{"id":"navitoclax-and-the-bcl-2-family-senolytic-class-r2","code":"f5","basis":"W","text":"Senolytic: removes a proliferation brake","src":"Table 17","src_from":"report"},{"id":"navitoclax-and-the-bcl-2-family-senolytic-class-r3","code":"f6","basis":"W","text":"Senolytic where a senomorphic exists","src":"Table 17","src_from":"report"},{"id":"navitoclax-and-the-bcl-2-family-senolytic-class-r4","code":"X","basis":null,"text":"Dose-limiting thrombocytopenia is disqualifying in a chromosome-fragile marrow (PMID 25942994)","src":"Table 17","src_from":"report"}],"deps":[],"constraints":{}},{"id":"hsp90-inhibitors-class","name":"HSP90 inhibitors (class)","fig":"HSP90 inhibitors (class)","route":"Interactome and annotation analysis","routeShort":"Interactome and annotation","group":"Group 1. Clearance of senescent or dividing cells","kind":"excluded","verdict":"KILL, CLASS-LEVEL","rank":null,"table":"Table 17","pmids":[],"cells":{"f1":"unscored","f2":"unscored","f3":"unscored","f4":"unscored","f5":"unscored","f6":"unscored","f7":"unscored"},"fw":true,"renal":false,"absolute":false,"note":"An interactome-route class: not scored against f1 to f7. Excluded on mechanism; no contradictory paper.","reasons":[{"id":"hsp90-inhibitors-class-r1","code":"FW","basis":null,"text":"The senescence-literature classification identified the class as senolytic, so it fails the firewall","src":"Table 17","src_from":"report"},{"id":"hsp90-inhibitors-class-r2","code":"f6","basis":"W","text":"Senolytic where a senomorphic exists","src":"Table 17","src_from":"report"},{"id":"hsp90-inhibitors-class-r3","code":"X","basis":null,"text":"Opposes chaperone co-induction on the same axis; two strategies pulling opposite ways on one axis cannot both be right","src":"Table 17","src_from":"report"}],"deps":[],"constraints":{}},{"id":"proteasome-inhibitors-bortezomib-class","name":"Proteasome inhibitors (bortezomib class)","fig":"Proteasome inhibitors (class)","route":"Interactome and annotation analysis","routeShort":"Interactome and annotation","group":"Group 1. Clearance of senescent or dividing cells","kind":"excluded","verdict":"KILL, firewall","rank":null,"table":"Table 17","pmids":[],"cells":{"f1":"unscored","f2":"unscored","f3":"unscored","f4":"unscored","f5":"unscored","f6":"unscored","f7":"unscored"},"fw":true,"renal":false,"absolute":false,"note":"An interactome-route class: not scored against f1 to f7. The substrate-selective degradation blocker that the finding calls for does not exist (Section 7).","reasons":[{"id":"proteasome-inhibitors-bortezomib-class-r1","code":"FW","basis":null,"text":"Non-selective proteasome inhibition is cytotoxic by intended mechanism, so it fails the firewall","src":"Table 17","src_from":"report"}],"deps":[],"constraints":{}},{"id":"mps1-ttk-inhibitors","name":"MPS1/TTK inhibitors","fig":"MPS1/TTK inhibitors","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 2. Mitotic machinery and the checkpoint","kind":"excluded","verdict":"KILL-ABSOLUTE","rank":null,"table":"Table 18","pmids":["15208629"],"cells":{"f1":"fail","f2":"fail","f3":"fail","f4":"fail","f5":"fail","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":true,"note":"Report text: chemical ablation of the core checkpoint sensor on a near-null BUBR1 background; directionally opposed to the lever. It names no filter.","reasons":[{"id":"mps1-ttk-inhibitors-r1","code":"M","basis":null,"text":"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it","src":"Table 18","src_from":"report"}],"deps":[],"constraints":{}},{"id":"aurora-b-inhibitors","name":"Aurora B inhibitors","fig":"Aurora B inhibitors","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 2. Mitotic machinery and the checkpoint","kind":"excluded","verdict":"KILL-ABSOLUTE","rank":null,"table":"Table 18","pmids":["20516114"],"cells":{"f1":"fail","f2":"fail","f3":"fail","f4":"fail","f5":"fail","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":true,"note":"Report text: removes Aurora-B-dependent correction of syntelic and merotelic attachments, the second arm of the same machinery. It names no filter.","reasons":[{"id":"aurora-b-inhibitors-r1","code":"M","basis":null,"text":"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it","src":"Table 18","src_from":"report"}],"deps":[],"constraints":{}},{"id":"trip13-inhibitors","name":"TRIP13 inhibitors","fig":"TRIP13 inhibitors","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 2. Mitotic machinery and the checkpoint","kind":"excluded","verdict":"KILL-ABSOLUTE","rank":null,"table":"Table 18","pmids":["28553959"],"cells":{"f1":"fail","f2":"fail","f3":"fail","f4":"cond","f5":"fail","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":true,"note":"Report text: depletes the open-MAD2 pool and is expected to phenocopy the checkpoint failure of TRIP13 loss. It names no filter.","reasons":[{"id":"trip13-inhibitors-r1","code":"M","basis":null,"text":"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it","src":"Table 18","src_from":"report"}],"deps":[],"constraints":{}},{"id":"kif18a-inhibitors","name":"KIF18A inhibitors","fig":"KIF18A inhibitors","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 2. Mitotic machinery and the checkpoint","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 18","pmids":["41369352","39747049","33505028"],"cells":{"f1":"na","f2":"fail","f3":"fail","f4":"pass","f5":"na","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":false,"note":"Tumour-directed only.","reasons":[{"id":"kif18a-inhibitors-r1","code":"f3","basis":null,"text":"The selectivity claim is chromosomal-instability-positive cells over diploid cells, so the selective agent selects against the child's own tissue","src":"Table 18","src_from":"report"}],"deps":[],"constraints":{}},{"id":"antimitotic-classes-against-the-bub1b-neighbourhood","name":"Antimitotic classes against the BUB1B neighbourhood","fig":"Antimitotic classes (BUB1B neighbourhood)","route":"Interactome and annotation analysis","routeShort":"Interactome and annotation","group":"Group 2. Mitotic machinery and the checkpoint","kind":"excluded","verdict":"KILL, CLASS-LEVEL","rank":null,"table":"Table 18","pmids":[],"cells":{"f1":"unscored","f2":"unscored","f3":"unscored","f4":"unscored","f5":"unscored","f6":"unscored","f7":"unscored"},"fw":true,"renal":false,"absolute":false,"note":"An interactome-route class: 47 unique clinical candidates across the 15 highest-confidence partners, 45 of them inhibitors, none approved. Not scored against f1 to f7.","reasons":[{"id":"antimitotic-classes-against-the-bub1b-neighbourhood-r1","code":"FW","basis":null,"text":"Their intended anticancer mechanism is to increase chromosome missegregation, which fails the firewall","src":"Table 18","src_from":"report"},{"id":"antimitotic-classes-against-the-bub1b-neighbourhood-r2","code":"f3","basis":null,"text":"Fails f3 in a child whose defining lesion is chromosomal instability","src":"Table 18","src_from":"report"},{"id":"antimitotic-classes-against-the-bub1b-neighbourhood-r3","code":"f2","basis":null,"text":"None would clear f2","src":"Table 18","src_from":"report"}],"deps":[],"constraints":{}},{"id":"microtubule-agents-vincristine-paclitaxel","name":"Microtubule agents (vincristine, paclitaxel)","fig":"Microtubule agents (vincristine, paclitaxel)","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 2. Mitotic machinery and the checkpoint","kind":"excluded","verdict":"KILL as constitutional modifier, OUT OF SCOPE as therapy","rank":null,"table":"Table 18","pmids":[],"cells":{"f1":"na","f2":"pass","f3":"fail","f4":"pass","f5":"na","f6":"na","f7":"na"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[{"id":"microtubule-agents-vincristine-paclitaxel-r1","code":"X","basis":null,"text":"Cells with a deficient checkpoint are expected to slip through mitotic arrest, so the agents are excluded as constitutional modifiers","src":"Table 18","src_from":"report"},{"id":"microtubule-agents-vincristine-paclitaxel-r2","code":"O","basis":"O","text":"Tumour-directed use belongs to the treating oncology team (Assumption O) and is not reconsidered here","src":"Table 18","src_from":"report"}],"deps":[],"constraints":{}},{"id":"lb-100-pp2a-inhibitor","name":"LB-100 (PP2A inhibitor)","fig":"LB-100 (PP2A inhibitor)","route":"Interactome and annotation analysis","routeShort":"Interactome and annotation","group":"Group 2. Mitotic machinery and the checkpoint","kind":"excluded","verdict":"KILL, WRONG DIRECTION","rank":null,"table":"Table 18","pmids":[],"cells":{"f1":"unscored","f2":"unscored","f3":"unscored","f4":"unscored","f5":"unscored","f6":"unscored","f7":"unscored"},"fw":false,"renal":false,"absolute":false,"note":"An interactome-route candidate: not scored against f1 to f7.","reasons":[{"id":"lb-100-pp2a-inhibitor-r1","code":"X","basis":null,"text":"Points the wrong way: reduced PP2A-B56 recruitment is the plausible functional deficit, and inhibiting PP2A would deepen it","src":"Table 18","src_from":"report"}],"deps":[],"constraints":{}},{"id":"vorinostat","name":"Vorinostat","fig":"Vorinostat","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 2. Mitotic machinery and the checkpoint","kind":"excluded","verdict":"KILL-ABSOLUTE","rank":null,"table":"Table 18","pmids":["27667442"],"cells":{"f1":"na","f2":"cond","f3":"fail","f4":"fail","f5":"na","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":true,"note":null,"reasons":[{"id":"vorinostat-r1","code":"f3","basis":null,"text":"Pan-HDAC inhibition is expected to perturb centromeric acetylation (an inference from mechanism)","src":"Table 18","src_from":"report"},{"id":"vorinostat-r2","code":"f4","basis":"Q","text":"Electrolyte wasting is expected to accelerate calcium-phosphate precipitation (an inference, not checked against a label)","src":"Table 18","src_from":"report"},{"id":"vorinostat-r3","code":"M","basis":null,"text":"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it","src":"Table 9","src_from":"report"}],"deps":[],"constraints":{}},{"id":"ruxolitinib","name":"Ruxolitinib","fig":"Ruxolitinib","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 3. Immune sensing and inflammatory signalling","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 19","pmids":["39706184","27128228","26578790"],"cells":{"f1":"pass","f2":"cond","f3":"pass","f4":"pass","f5":"fail","f6":"pass","f7":"fail"},"fw":false,"renal":true,"absolute":false,"note":"Passes f1 and f6 (JAK inhibition suppresses the SASP). GFR is a dosing variable, so f4 is recorded as a pass with dose adjustment.","reasons":[{"id":"ruxolitinib-r1","code":"f5","basis":null,"text":"Blocks the innate sensing arm that surveils missegregating cells","src":"Table 19","src_from":"report"},{"id":"ruxolitinib-r2","code":"f7","basis":null,"text":"CYP3A4 substrate, myelosuppressive, infection risk over an unknown chemotherapy interval","src":"Table 19","src_from":"report"}],"deps":[],"constraints":{}},{"id":"baricitinib","name":"Baricitinib","fig":"Baricitinib","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 3. Immune sensing and inflammatory signalling","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 19","pmids":["39706184"],"cells":{"f1":"pass","f2":"cond","f3":"pass","f4":"pass","f5":"fail","f6":"pass","f7":"fail"},"fw":false,"renal":true,"absolute":false,"note":"About 69% of the dose is excreted unchanged in urine (Olumiant SmPC section 5.2), so f4 is a pass with dose adjustment. The verdict does not depend on f4.","reasons":[{"id":"baricitinib-r1","code":"f5","basis":null,"text":"The same surveillance argument","src":"Table 19","src_from":"report"},{"id":"baricitinib-r2","code":"f7","basis":null,"text":"Infection risk over an unknown chemotherapy interval","src":"Table 19","src_from":"report"}],"deps":[],"constraints":{}},{"id":"h-151-and-sn-011-sting-antagonists","name":"H-151 and SN-011 (STING antagonists)","fig":"H-151 / SN-011 (STING antagonists)","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 3. Immune sensing and inflammatory signalling","kind":"excluded","verdict":"KILL-ABSOLUTE","rank":null,"table":"Table 19","pmids":["39706184"],"cells":{"f1":"pass","f2":"fail","f3":"pass","f4":"cond","f5":"fail","f6":"pass","f7":"fail"},"fw":false,"renal":false,"absolute":true,"note":"Report text: directly ablates the sensor that couples micronucleus formation to immune clearance of aberrant cells; preclinical probes with no human data. It names no filter.","reasons":[{"id":"h-151-and-sn-011-sting-antagonists-r1","code":"M","basis":null,"text":"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it","src":"Table 19","src_from":"report"}],"deps":[],"constraints":{}},{"id":"metformin","name":"Metformin","fig":"Metformin","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 4. Renal burden and growth","kind":"excluded","verdict":"KILL-ABSOLUTE","rank":null,"table":"Table 20","pmids":[],"cells":{"f1":"cond","f2":"pass","f3":"cond","f4":"fail","f5":"cond","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":true,"note":null,"reasons":[{"id":"metformin-r1","code":"f4","basis":"Q","text":"Eliminated unchanged by the kidney; reduced tubular reserve risks accumulation and lactic acidosis (hard)","src":"Table 20","src_from":"report"},{"id":"metformin-r2","code":"f7","basis":null,"text":"Fails f7","src":"Table 20","src_from":"report"},{"id":"metformin-r3","code":"M","basis":null,"text":"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it","src":"Table 9","src_from":"report"}],"deps":[],"constraints":{}},{"id":"imeglimin","name":"Imeglimin","fig":"Imeglimin","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 4. Renal burden and growth","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 20","pmids":["34962074","36847203","37713097"],"cells":{"f1":"cond","f2":"fail","f3":"pass","f4":"pass","f5":"cond","f6":"na","f7":"fail"},"fw":false,"renal":true,"absolute":false,"note":"Eliminated mainly unchanged in urine, so GFR is a dosing variable and f4 is a pass with dose adjustment. The verdict does not depend on f4.","reasons":[{"id":"imeglimin-r1","code":"f2","basis":null,"text":"Approved in Japan for adult type 2 diabetes, with no paediatric data","src":"Table 20","src_from":"report"},{"id":"imeglimin-r2","code":"f7","basis":null,"text":"An OCT-transported cation with no paediatric pharmacokinetics","src":"Table 20","src_from":"report"}],"deps":[],"constraints":{}},{"id":"sirolimus","name":"Sirolimus","fig":"Sirolimus","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 4. Renal burden and growth","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 20","pmids":["26147250","41820377"],"cells":{"f1":"pass","f2":"pass","f3":"pass","f4":"fail","f5":"fail","f6":"pass","f7":"fail"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[{"id":"sirolimus-r1","code":"f4","basis":"Q","text":"Proximal tubular proteinuria and impaired tubular regeneration","src":"Table 20","src_from":"report"},{"id":"sirolimus-r2","code":"f5","basis":null,"text":"Chronic immunosuppression removes anti-tumour surveillance","src":"Table 20","src_from":"report"},{"id":"sirolimus-r3","code":"f7","basis":null,"text":"Suppresses linear growth velocity in a child whose cardinal phenotype is growth failure; CYP3A4 interactions","src":"Table 20","src_from":"report"}],"deps":[{"id":"sirolimus-d1","origin":"explicit","kind":"assumption","key":"W","effect":"note","text":"W favours sirolimus as a senomorphic, but it is a tie-breaker and gives no passage past the hard filters (Section 3, Assumption W). Removing W takes away that preference; the exclusion rests on f4, f5 and f7."}],"constraints":{}},{"id":"everolimus","name":"Everolimus","fig":"Everolimus","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Group 4. Renal burden and growth","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 20","pmids":["26147250"],"cells":{"f1":"pass","f2":"pass","f3":"pass","f4":"fail","f5":"fail","f6":"pass","f7":"fail"},"fw":false,"renal":false,"absolute":false,"note":"The PMID is class read-across from the sirolimus row. The paediatric label does not rescue it: a label is a constraint and not a permission.","reasons":[{"id":"everolimus-r1","code":"f4","basis":"Q","text":"Rapalog class proteinuria","src":"Table 20","src_from":"report"},{"id":"everolimus-r2","code":"f5","basis":null,"text":"Fails f5","src":"Table 20","src_from":"report"},{"id":"everolimus-r3","code":"f7","basis":null,"text":"Growth suppression, stomatitis, CYP3A4","src":"Table 20","src_from":"report"}],"deps":[],"constraints":{}},{"id":"somatropin-recombinant-human-growth-hormone","name":"Somatropin (recombinant human growth hormone)","fig":"Somatropin (rhGH)","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 4. Renal burden and growth","kind":"excluded","verdict":"KILL-ABSOLUTE","rank":null,"table":"Table 20","pmids":["25839904"],"cells":{"f1":"na","f2":"pass","f3":"pass","f4":"pass","f5":"fail","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":true,"note":"Report text: Omnitrope SmPC section 4.3 says it must not be used with any evidence of tumour activity, and section 4.4 reports a second-neoplasm risk in childhood cancer survivors. Mecasermin and long-acting growth hormone fall under the same reasoning.","reasons":[{"id":"somatropin-recombinant-human-growth-hormone-r1","code":"M","basis":null,"text":"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it","src":"Table 20","src_from":"report"}],"deps":[],"constraints":{}},{"id":"arimoclomol","name":"Arimoclomol","fig":"Arimoclomol","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 5. Chaperone, NAD-axis, antioxidant and polyamine agents","kind":"excluded","verdict":"KILL, PATIENT-SPECIFIC","rank":null,"table":"Table 21","pmids":["27450084","17889646","34418116","40663813"],"cells":{"f1":"pass","f2":"pass","f3":"pass","f4":"pass","f5":"fail","f6":"na","f7":"cond"},"fw":false,"renal":false,"absolute":false,"note":"Patient-specific: it rests on rhabdomyosarcoma biology, so a child with another tumour type needs that evidence read again (Table 22).","reasons":[{"id":"arimoclomol-r1","code":"f5","basis":"RMS","text":"Evidence specific to this tumour type: rhabdomyosarcoma depends on cytosolic HSP70, and HSF1 co-induction is judged to select for the tumour compartment","src":"Table 21 (filter code from Figure 2)","src_from":"figure"}],"deps":[{"id":"arimoclomol-d1","origin":"explicit","kind":"assumption","key":"RMS","effect":"note","text":"Table 22 lists the exclusion of arimoclomol as not transferring (patient-specific). It rests on the dependence of rhabdomyosarcoma cells on cytosolic HSP70 (Section 6.5), so an MVA1 child with another tumour type, or none, needs that evidence read again. Removing RMS lifts the only recorded reason."}],"constraints":{}},{"id":"sodium-4-phenylbutyrate","name":"Sodium 4-phenylbutyrate","fig":"Sodium 4-phenylbutyrate","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 5. Chaperone, NAD-axis, antioxidant and polyamine agents","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 21","pmids":["27667442"],"cells":{"f1":"fail","f2":"pass","f3":"fail","f4":"fail","f5":"cond","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[{"id":"sodium-4-phenylbutyrate-r1","code":"f4","basis":"Q","text":"Sodium load raises urinary calcium excretion, the wrong direction in established nephrocalcinosis (hard)","src":"Table 21","src_from":"report"},{"id":"sodium-4-phenylbutyrate-r2","code":"f1","basis":null,"text":"The same ER-client mismatch as TUDCA","src":"Table 21","src_from":"report"},{"id":"sodium-4-phenylbutyrate-r3","code":"f7","basis":null,"text":"Volume, palatability and sodium load in a child whose fluid and electrolyte management is unknown","src":"Table 21","src_from":"report"}],"deps":[],"constraints":{}},{"id":"reduced-nicotinamide-riboside-nrh","name":"Reduced nicotinamide riboside (NRH)","fig":"Reduced nicotinamide riboside (NRH)","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 5. Chaperone, NAD-axis, antioxidant and polyamine agents","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 21","pmids":["41724424"],"cells":{"f1":"cond","f2":"fail","f3":"cond","f4":"cond","f5":"fail","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[{"id":"reduced-nicotinamide-riboside-nrh-r1","code":"f2","basis":null,"text":"No human paediatric data, no paediatric formulation or dose","src":"Table 21","src_from":"report"},{"id":"reduced-nicotinamide-riboside-nrh-r2","code":"f5","basis":null,"text":"Vitamin B3 class signal for tumour-cell survival and chemoresistance","src":"Table 21","src_from":"report"},{"id":"reduced-nicotinamide-riboside-nrh-r3","code":"f7","basis":null,"text":"Unknown interactions on a chemotherapy pathway","src":"Table 21","src_from":"report"}],"deps":[],"constraints":{}},{"id":"nicotinamide-plain-high-dose","name":"Nicotinamide (plain, high dose)","fig":"Nicotinamide (plain, high dose)","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Group 5. Chaperone, NAD-axis, antioxidant and polyamine agents","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 21","pmids":["33670751","41724424"],"cells":{"f1":"fail","f2":"pass","f3":"pass","f4":"pass","f5":"fail","f6":"na","f7":"pass"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[{"id":"nicotinamide-plain-high-dose-r1","code":"f1","basis":null,"text":"Expected to inhibit SIRT2 and so to work against the intended mechanism (untested)","src":"Table 21","src_from":"report"},{"id":"nicotinamide-plain-high-dose-r2","code":"f5","basis":null,"text":"Carries the same tumour-support class signal as NR and NMN","src":"Table 21","src_from":"report"}],"deps":[],"constraints":{}},{"id":"spermidine","name":"Spermidine","fig":"Spermidine","route":"Pre-screen literature synthesis","routeShort":"Pre-screen synthesis","group":"Group 5. Chaperone, NAD-axis, antioxidant and polyamine agents","kind":"excluded","verdict":"KILL","rank":null,"table":"Table 21","pmids":["29315079"],"cells":{"f1":"cond","f2":"fail","f3":"pass","f4":"pass","f5":"fail","f6":"na","f7":"fail"},"fw":false,"renal":false,"absolute":false,"note":null,"reasons":[{"id":"spermidine-r1","code":"f2","basis":null,"text":"Human safety data in older adults only","src":"Table 21","src_from":"report"},{"id":"spermidine-r2","code":"f7","basis":null,"text":"No paediatric dose or formulation","src":"Table 21","src_from":"report"}],"deps":[],"constraints":{}},{"id":"n-acetylcysteine","name":"N-acetylcysteine","fig":"N-acetylcysteine","route":"Systematic PubMed query","routeShort":"PubMed query","group":"Group 5. Chaperone, NAD-axis, antioxidant and polyamine agents","kind":"excluded","verdict":"KILL-ABSOLUTE","rank":null,"table":"Table 21","pmids":["24477002","33557356","31356639"],"cells":{"f1":"cond","f2":"pass","f3":"pass","f4":"pass","f5":"fail","f6":"na","f7":"pass"},"fw":false,"renal":false,"absolute":true,"note":"Report text: relief of oxidative restraint on established tumour cells is the wrong direction in a cancer-predisposition syndrome. It names no filter.","reasons":[{"id":"n-acetylcysteine-r1","code":"M","basis":null,"text":"KILL-ABSOLUTE: the report states that no dose, schedule or gate rescues it","src":"Table 21","src_from":"report"}],"deps":[],"constraints":{}}]};
+</script>
+<script>
+(function(){
+"use strict";
+const D = DATA;
+const FIDS = ["f1","f2","f3","f4","f5","f6","f7"];
+const CELL = {pass:"✓",cond:"~",fail:"✗",na:"–",unscored:"·"};
+const CELLWORD = {pass:"Passes",cond:"Qualified or unknown",fail:"Fails",na:"Not applicable",unscored:"Not scored"};
+const KIND_LABEL = {ranked:"Ranked, gated",supportive:"Supportive",deprescribe:"Deprescribe pending work-up",outside:"Outside the question",excluded:"Excluded"};
+const SEV = {blocked:5,closed:4,affected:3,opens:2,note:1};
+const STATUS_WORD = {unchanged:"Unchanged",stays:"Stays excluded",reopens:"Re-opens",affected:"Affected",blocked:"Blocked",closed:"Closed",opens:"Opens"};
+const OUT_LABEL = {unmeasured:"Not yet measured",unstable:"Unstable, cleared by the proteasome",stable:"Stable, functionally impaired",neutral:"Near-neutral"};
+const ISG_LABEL = {unmeasured:"not measured",positive:"positive",negative:"negative"};
+const PHASE_LABEL = {unknown:"unknown",active:"on chemotherapy",off:"off chemotherapy"};
+const aname = id => id==="RMS" ? "RMS premise" : "Assumption "+id;
+
+function defaults(){
+  return {assump:{W:1,Q:1,O:1,T:1,RMS:1}, filt:{f1:1,f2:1,f3:1,f5:1,f6:1,f7:1,FW:1,f7a:1,f7b:1,f8:1}, f4:"reported", src:"text", abs:1, out:"unmeasured", isg:"unmeasured", phase:"unknown"};
+}
+function f4eff(S){ return (!S.assump.Q || S.f4==="off") ? "off" : S.f4; }
+function filterOn(S, code){
+  if(code==="f4") return f4eff(S)!=="off";
+  if((code==="f7a" || code==="f7b") && S.phase==="off") return false;   // Table 22: both lapse with the backbone
+  return !!S.filt[code];
+}
+
+// ---------- evaluation (mirrored line for line by the Python reference in verify_viewer.py)
+function reasonList(S, c, src){
+  const out = c.reasons.map(r=>Object.assign({}, r, {origin:"report"}));
+  if(c.kind!=="excluded") return out;
+  if(src==="figure"){
+    for(const f of FIDS){
+      if(c.cells[f]==="fail" && !out.some(r=>r.code===f))
+        out.push({id:c.id+"-fig-"+f, code:f, basis:(f==="f4"?"Q":null), text:"Figure 2 marks this filter as failed", src:"Figure 2", src_from:"figure", origin:"figure"});
+    }
+    if(c.fw && !out.some(r=>r.code==="FW"))
+      out.push({id:c.id+"-fig-FW", code:"FW", basis:null, text:"Figure 2 marks the cytotoxic firewall as failed", src:"Figure 2", src_from:"figure", origin:"figure"});
+  }
+  if(f4eff(S)==="strict" && c.renal)
+    out.push({id:c.id+"-strict-f4", code:"f4", basis:"Q", text:"Strict rule: renal clearance alone fails f4", src:"Section 5.3 (strict rule)", src_from:"report", origin:"strict"});
+  return out;
+}
+function removedBy(S, r){
+  const why = [];
+  if(r.code==="M"){ if(!S.abs) why.push("KILL-ABSOLUTE not honoured"); }
+  else if(r.code==="FW"){ if(!S.filt.FW) why.push("FW off"); }
+  else if(r.code==="O"){ if(!S.assump.O) why.push("Assumption O removed"); }
+  else if(r.code==="X"){ /* never removed */ }
+  else if(!filterOn(S, r.code)) why.push(r.code+" off");
+  if(r.basis && !S.assump[r.basis]){ const t=aname(r.basis)+" removed"; if(why.indexOf(t)<0) why.push(t); }
+  return why.sort();
+}
+function evalExcluded(S, c, src){
+  const rs = reasonList(S, c, src).map(r=>Object.assign({}, r, {removed:removedBy(S, r)}));
+  const active = rs.filter(r=>r.removed.length===0);
+  return {reasons:rs, active:active.length, total:rs.length, status: active.length ? "stays" : "reopens"};
+}
+function depTriggered(S, d){
+  switch(d.kind){
+    case "assumption": return !S.assump[d.key];
+    case "filter": return !filterOn(S, d.key);
+    case "gate": return !filterOn(S, d.key);
+    case "f4rule": return f4eff(S)==="strict";
+    case "outcome": return S.out===d.key;
+    case "isg": return S.isg===d.key;
+    case "phase": return S.phase===d.key;
+  }
+  return false;
+}
+function evalCand(S, c){
+  const triggered = c.deps.filter(d=>depTriggered(S, d));
+  const res = {id:c.id, triggered:triggered.map(d=>d.id)};
+  if(c.kind==="excluded"){
+    const p = evalExcluded(S, c, S.src);
+    const alt = evalExcluded(S, c, S.src==="text" ? "figure" : "text");
+    res.reasons = p.reasons; res.active = p.active; res.total = p.total; res.status = p.status;
+    res.alt = alt.status; res.altActive = alt.reasons.filter(r=>r.removed.length===0).map(r=>r.code);
+    res.textStatus = S.src==="text" ? p.status : alt.status;
+    res.figStatus = S.src==="figure" ? p.status : alt.status;
+  } else {
+    let top = null;
+    for(const d of triggered){ if(d.effect!=="note" && (!top || SEV[d.effect]>SEV[top])) top = d.effect; }
+    res.status = top || "unchanged";
+  }
+  return res;
+}
+function evaluate(S){
+  const out = {};
+  for(const c of D.candidates) out[c.id] = evalCand(S, c);
+  return out;
+}
+window.__evaluate = evaluate; window.__defaults = defaults; window.__data = D;
+
+// ---------- state
+let S = defaults();
+const el = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const open = new Set();
+let allOpen = false;
+
+function encodeHash(){
+  const off = [];
+  for(const a of D.assumptions) if(!S.assump[a.id]) off.push(a.id);
+  for(const k of Object.keys(S.filt)) if(!S.filt[k]) off.push(k);
+  const p = [];
+  if(off.length) p.push("off="+off.join(","));
+  if(S.f4!=="reported") p.push("f4="+S.f4);
+  if(S.src!=="text") p.push("src="+S.src);
+  if(!S.abs) p.push("abs=0");
+  if(S.out!=="unmeasured") p.push("out="+S.out);
+  if(S.isg!=="unmeasured") p.push("isg="+S.isg);
+  if(S.phase!=="unknown") p.push("phase="+S.phase);
+  return p.join("&");
+}
+function decodeHash(h){
+  const s = defaults();
+  try{
+    const sp = new URLSearchParams((h||"").replace(/^#/,""));
+    (sp.get("off")||"").split(",").filter(Boolean).forEach(k=>{
+      if(k in s.assump) s.assump[k]=0; else if(k in s.filt) s.filt[k]=0;
+    });
+    if(["strict","off"].includes(sp.get("f4"))) s.f4 = sp.get("f4");
+    if(sp.get("src")==="figure") s.src = "figure";
+    if(sp.get("abs")==="0") s.abs = 0;
+    if(Object.keys(OUT_LABEL).includes(sp.get("out"))) s.out = sp.get("out");
+    if(["positive","negative"].includes(sp.get("isg"))) s.isg = sp.get("isg");
+    if(["active","off"].includes(sp.get("phase"))) s.phase = sp.get("phase");
+  }catch(e){}
+  return s;
+}
+function pushHash(){
+  try{ const h = encodeHash(); history.replaceState(null,"",h ? "#"+h : location.pathname+location.search); }catch(e){}
+}
+
+// ---------- controls
+function lapsed(code){ return (code==="f7a" || code==="f7b") && S.phase==="off"; }
+function buildControls(){
+  const A = el("assumptions");
+  A.innerHTML = D.assumptions.map(a=>`
+    <div class="row">
+      <div class="lab"><b>${esc(a.id)}. ${esc(a.short)}</b><span>${esc(a.text)}</span><span class="state" data-st="${a.id}"></span></div>
+      <button type="button" class="sw" role="switch" aria-checked="true" aria-label="${esc(a.derived ? "Patient fact "+a.id : "Assumption "+a.id)}: ${esc(a.short)}" data-a="${a.id}"></button>
+    </div>`).join("");
+  A.querySelectorAll("button.sw").forEach(b=>b.addEventListener("click",()=>{ S.assump[b.dataset.a] = S.assump[b.dataset.a] ? 0 : 1; render(); }));
+
+  el("outcomes").innerHTML = D.outcomes.map(o=>`<button type="button" data-o="${o.id}" aria-pressed="false">${esc(o.label)}</button>`).join("");
+  el("outcomes").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ S.out=b.dataset.o; render(); }));
+
+  el("isgseg").innerHTML = D.isgOutcomes.map(o=>`<button type="button" data-v="${o.id}" aria-pressed="false">${esc(o.label)}</button>`).join("");
+  el("isgseg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ S.isg=b.dataset.v; render(); }));
+  el("phaseseg").innerHTML = D.phases.map(o=>`<button type="button" data-v="${o.id}" aria-pressed="false">${esc(o.label)}</button>`).join("");
+  el("phaseseg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ S.phase=b.dataset.v; render(); }));
+
+  el("filters").innerHTML = D.filters.filter(f=>f.id!=="f4").map(f=>`<button type="button" class="chip" data-f="${f.id}" aria-pressed="true" title="${esc(f.q)}">${esc(f.label)}</button>`).join("");
+  el("filters").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ if(lapsed(b.dataset.f)) return; S.filt[b.dataset.f] = S.filt[b.dataset.f] ? 0 : 1; render(); }));
+
+  el("f4seg").innerHTML = [["reported","As reported"],["strict","Strict"],["off","Off"]].map(x=>`<button type="button" data-v="${x[0]}" aria-pressed="false">${x[1]}</button>`).join("");
+  el("f4seg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ S.f4=b.dataset.v; render(); }));
+
+  el("srcseg").innerHTML = [["text","Report text"],["figure","Every ✗ in Figure 2"]].map(x=>`<button type="button" data-v="${x[0]}" aria-pressed="false">${x[1]}</button>`).join("");
+  el("srcseg").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ S.src=b.dataset.v; render(); }));
+
+  el("abs").addEventListener("change",e=>{ S.abs = e.target.checked?1:0; render(); });
+
+  el("presets").innerHTML = D.presets.map((p,i)=>`<button type="button" class="btn" data-p="${i}"${p.title?` title="${esc(p.title)}"`:""}>${esc(p.label)}</button>`).join("");
+  el("presets").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    const p = D.presets[+b.dataset.p]; S = defaults();
+    (p.off||[]).forEach(k=>{ if(k in S.assump) S.assump[k]=0; else if(k in S.filt) S.filt[k]=0; });
+    if(p.f4) S.f4 = p.f4; if(p.out) S.out = p.out; if(p.src) S.src = p.src; if(p.abs===0) S.abs = 0;
+    if(p.isg) S.isg = p.isg; if(p.phase) S.phase = p.phase;
+    render();
+  }));
+  el("reset").addEventListener("click",()=>{ S = defaults(); render(); });
+  el("copylink").addEventListener("click",()=>{
+    const url = location.href.split("#")[0] + (encodeHash() ? "#"+encodeHash() : "");
+    const done = ()=>{ el("copied").textContent = "Link to this scenario copied."; setTimeout(()=>{ el("copied").textContent=""; },2500); };
+    try{ navigator.clipboard.writeText(url).then(done, ()=>{ el("copied").textContent = url; }); }catch(e){ el("copied").textContent = url; }
+  });
+  el("dl").addEventListener("click", downloadCsv);
+  el("q").addEventListener("input", renderTable);
+  el("statf").addEventListener("change", renderTable);
+  el("expall").addEventListener("click",()=>{ allOpen = !allOpen; open.clear(); if(allOpen) D.candidates.forEach(c=>open.add(c.id)); el("expall").textContent = allOpen ? "Collapse all" : "Expand all"; renderTable(); });
+}
+
+function syncControls(){
+  document.querySelectorAll("button.sw").forEach(b=>{
+    const on = !!S.assump[b.dataset.a]; b.setAttribute("aria-checked", on ? "true":"false");
+    const st = document.querySelector(`[data-st="${b.dataset.a}"]`);
+    st.textContent = on ? "Held, as in the report" : "Removed"; st.className = "state " + (on?"held":"rem");
+  });
+  el("outcomes").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.o===S.out ? "true":"false"));
+  const oh = D.outcomes.find(o=>o.id===S.out);
+  el("outhint").textContent = oh ? oh.hint : "";
+  el("isgseg").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===S.isg ? "true":"false"));
+  const ih = D.isgOutcomes.find(o=>o.id===S.isg); el("isghint").textContent = ih ? ih.hint : "";
+  el("phaseseg").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===S.phase ? "true":"false"));
+  const ph = D.phases.find(o=>o.id===S.phase); el("phasehint").textContent = ph ? ph.hint : "";
+  el("filters").querySelectorAll("button").forEach(b=>{
+    const f = b.dataset.f, lp = lapsed(f);
+    b.setAttribute("aria-pressed", filterOn(S, f) ? "true":"false");
+    if(lp){ b.setAttribute("aria-disabled","true"); b.title = "Lapsed: the treatment phase is off chemotherapy, so this gate does not apply (Table 22)."; }
+    else { b.removeAttribute("aria-disabled"); b.title = D.filters.find(x=>x.id===f).q; }
+  });
+  el("f4seg").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===S.f4 ? "true":"false"));
+  el("f4hint").textContent = !S.assump.Q ? "Assumption Q is removed, so f4 is not applied whatever is chosen here." :
+    ({reported:"Renal clearance alone does not fail f4. Agents whose dose is set by GFR pass with dose adjustment (Section 5.3).",
+      strict:"Renal clearance alone fails f4. Anakinra, ruxolitinib, baricitinib and imeglimin would fail a hard filter.",
+      off:"f4 is not applied. Same effect on the rows as removing Q."})[S.f4];
+  el("srcseg").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===S.src ? "true":"false"));
+  el("srchint").textContent = S.src==="text" ? "Only the reasons the report writes out for each excluded candidate." : "The report's reasons plus every failing cell in Figure 2. More conservative: fewer rows re-open.";
+  el("abs").checked = !!S.abs;
+}
+
+// ---------- rendering
+function subsLabel(){
+  const p = [];
+  for(const a of D.assumptions) if(!S.assump[a.id]) p.push(aname(a.id)+" removed");
+  for(const f of D.filters){ if(f.id!=="f4" && !S.filt[f.id]) p.push(f.id+" off"); }
+  if(S.f4==="strict" && S.assump.Q) p.push("f4 strict");
+  if(S.f4==="off" && S.assump.Q) p.push("f4 off");
+  if(S.out!=="unmeasured") p.push("assay result: "+OUT_LABEL[S.out].toLowerCase());
+  if(S.isg!=="unmeasured") p.push("ISG readout: "+ISG_LABEL[S.isg]);
+  if(S.phase!=="unknown") p.push("treatment phase: "+PHASE_LABEL[S.phase]+(S.phase==="off" ? " (gates f7a and f7b lapse)" : ""));
+  if(!S.abs) p.push("KILL-ABSOLUTE not honoured");
+  if(S.src==="figure") p.push("reasons read from every ✗ in Figure 2");
+  return p;
+}
+function triggerLabel(d){
+  if(d.kind==="assumption") return d.key+" removed";
+  if(d.kind==="filter") return d.key+" off";
+  if(d.kind==="gate") return S.filt[d.key] ? d.key+" lapsed (off chemotherapy)" : d.key+" off";
+  if(d.kind==="f4rule") return "strict f4";
+  if(d.kind==="outcome") return "result: "+OUT_LABEL[d.key].toLowerCase();
+  if(d.kind==="isg") return "ISG readout: "+ISG_LABEL[d.key];
+  if(d.kind==="phase") return "phase: "+PHASE_LABEL[d.key];
+  return d.key;
+}
+let EV = null;
+
+function vclass(c){
+  const v = c.verdict;
+  if(c.kind==="ranked") return "v-allow";
+  if(c.kind==="excluded") return "v-kill";
+  if(c.kind==="deprescribe") return "v-dep";
+  return "v-sup";
+}
+function cellsHtml(c, ev){
+  let h = "";
+  FIDS.forEach((f,i)=>{
+    const st = c.cells[f];
+    const off = !filterOn(S, f);
+    h += `<td class="cell${i===0?" sep":""}"><span class="cl ${st}${off?" off":""}" title="${esc(f)}: ${CELLWORD[st]}${off?" (filter switched off)":""}">${CELL[st]}</span></td>`;
+  });
+  const fwst = c.fw ? "fail" : "unscored";
+  const fwoff = !S.filt.FW;
+  h += `<td class="cell sep"><span class="cl ${fwst}${fwoff?" off":""}" title="Cytotoxic firewall: ${c.fw?"Fails":"No recorded failure"}${fwoff?" (switched off)":""}">${c.fw?"✗":"·"}</span></td>`;
+  return h;
+}
+function reasonChips(c, ev){
+  if(c.kind!=="excluded") {
+    const marks = FIDS.filter(f=>c.cells[f]==="fail"||c.cells[f]==="cond").map(f=>`<span class="rc${!filterOn(S,f)?" gone":""}" title="${CELLWORD[c.cells[f]]}: named constraint">${f}${c.cells[f]==="fail"?"✗":"~"}</span>`).join("");
+    return marks ? `<span class="stx" style="margin:0 0 2px">Named constraints</span>${marks}` : `<span class="stx">No named constraint</span>`;
+  }
+  return ev.reasons.map(r=>`<span class="rc${r.removed.length?" gone":""}${r.origin==="figure"?" fg":""}" title="${esc(r.text)}${r.removed.length?" (lapsed: "+esc(r.removed.join(", "))+")":""}">${esc(r.code)}${r.basis?"·"+esc(r.basis):""}</span>`).join("");
+}
+function statusHtml(c, ev){
+  const word = STATUS_WORD[ev.status];
+  let sub = "";
+  if(c.kind==="excluded"){
+    sub = ev.status==="stays" ? `${ev.active} of ${ev.total} recorded reason${ev.total===1?"":"s"} remain${ev.active===1?"s":""}` : "No recorded reason remains";
+    if(ev.status==="reopens" && ev.alt==="stays" && ev.altActive.length) sub += `. Figure 2 still marks ✗ at ${esc(Array.from(new Set(ev.altActive)).join(", "))}`;
+    if(ev.status==="stays" && ev.active<ev.total) sub += ` (${ev.total-ev.active} lapsed)`;
+  } else {
+    const t = c.deps.filter(d=>ev.triggered.includes(d.id) && d.effect!=="note");
+    sub = t.length ? Array.from(new Set(t.map(triggerLabel))).join(", ") : (ev.triggered.length ? "Note only" : "");
+  }
+  return `<span class="pill ${ev.status}">${word}</span>${sub?`<span class="stx">${sub}</span>`:""}`;
+}
+function detailHtml(c, ev){
+  const pm = c.pmids.length ? c.pmids.map(p=>`<a href="https://pubmed.ncbi.nlm.nih.gov/${p}/" target="_blank" rel="noopener">${p}</a>`).join(", ") : "none cited";
+  let h = `<div class="dp">`;
+  h += `<div class="full"><b>${esc(c.name)}</b> · ${esc(c.verdict)} · ${esc(c.table)} · route: ${esc(c.route)} · PMIDs: ${pm}${c.note?`<br><span style="color:var(--muted)">${esc(c.note)}</span>`:""}</div>`;
+  if(c.kind==="excluded"){
+    h += `<div><h3>Recorded reasons (${ev.active} of ${ev.total} remain)</h3><ul>` + ev.reasons.map(r=>`
+      <li class="${r.removed.length?"gone":""}"><span class="tag">${esc(r.code)}${r.basis?" · rests on "+esc(r.basis):""}</span>${esc(r.text)}
+      <span class="meta">${esc(r.src)}${r.origin==="figure"?" · added by the Figure 2 reading":""}${r.src_from==="figure"&&r.origin==="report"?" · filter code taken from Figure 2":""}${r.removed.length?" · lapsed: "+esc(r.removed.join(", ")):" · applies"}</span></li>`).join("") + `</ul></div>`;
+  }
+  // cells
+  h += `<div><h3>Figure 2 cells</h3><div class="cellgrid">` + FIDS.map(f=>{
+    const st=c.cells[f], note = c.constraints[f]; const off=!filterOn(S,f);
+    return `<span class="cl ${st}${off?" off":""}">${CELL[st]}</span><span><b>${f}</b> ${CELLWORD[st]}${off?" (switched off)":""}${note?`<br><span style="color:var(--muted)">${esc(note)}</span>`:""}</span>`;
+  }).join("") + `<span class="cl ${c.fw?"fail":"unscored"}${!S.filt.FW?" off":""}">${c.fw?"✗":"·"}</span><span><b>FW</b> ${c.fw?"Fails the cytotoxic firewall":"No recorded failure"}</span>` + `</div></div>`;
+  // dependencies
+  if(c.deps.length){
+    h += `<div><h3>How this row depends on the switches</h3><ul>` + c.deps.map(d=>{
+      const on = ev.triggered.includes(d.id);
+      const cls = on ? ("on "+(d.effect==="blocked"||d.effect==="closed"?"blk":d.effect==="opens"?"opn":d.effect==="note"?"nte":"")) : "";
+      const eff = {blocked:"Blocked",closed:"Closed",affected:"Affected",opens:"Opens",note:"Note"}[d.effect];
+      return `<li class="${cls}"><span class="tag">${esc(on?"Applies now: ":"If ")+esc(triggerLabel(d))}</span><b>${eff}.</b> ${esc(d.text)}</li>`;
+    }).join("") + `</ul></div>`;
+  }
+  h += `</div>`;
+  return h;
+}
+function matchesFilter(c, ev){
+  const f = el("statf").value, q = el("q").value.trim().toLowerCase();
+  const changed = !(ev.status==="unchanged" || ev.status==="stays");
+  if(f==="changed" && !changed) return false;
+  if(f==="reopens" && ev.status!=="reopens") return false;
+  if(f==="blocked" && !(ev.status==="blocked"||ev.status==="closed")) return false;
+  if(f==="affected" && ev.status!=="affected") return false;
+  if(f==="excluded" && c.kind!=="excluded") return false;
+  if(f==="kept" && c.kind==="excluded") return false;
+  if(q){
+    const hay = (c.name+" "+c.verdict+" "+c.group+" "+c.pmids.join(" ")+" "+c.reasons.map(r=>r.text+" "+r.code).join(" ")+" "+(c.note||"")).toLowerCase();
+    if(!hay.includes(q)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const tb = el("tb"); let h = ""; let lastG = null; let shown = 0;
+  const groups = {};
+  D.candidates.forEach(c=>{ (groups[c.group]=groups[c.group]||[]).push(c); });
+  for(const g of D.groupOrder){
+    const rows = (groups[g]||[]).filter(c=>matchesFilter(c, EV[c.id]));
+    if(!rows.length) continue;
+    h += `<tr class="gh"><td colspan="11">${esc(g)} <span>(${rows.length}${rows.length!==groups[g].length?" of "+groups[g].length:""})</span></td></tr>`;
+    for(const c of rows){
+      const ev = EV[c.id]; shown++;
+      const changed = !(ev.status==="unchanged"||ev.status==="stays");
+      const isOpen = open.has(c.id);
+      h += `<tr class="item${ev.status==="reopens"?" reo":changed?" changed":""}" data-id="${c.id}">
+        <td class="name"><button type="button" class="nm" aria-expanded="${isOpen}" aria-controls="d-${c.id}" data-id="${c.id}">${isOpen?"▾":"▸"} ${esc(c.name)}</button>
+          <span class="vd ${vclass(c)}">${esc(c.verdict)}</span><span class="rt">${esc(c.routeShort)}</span></td>
+        ${cellsHtml(c, ev)}
+        <td class="rs">${reasonChips(c, ev)}</td>
+        <td class="st">${statusHtml(c, ev)}</td></tr>`;
+      if(isOpen) h += `<tr class="det" id="d-${c.id}"><td colspan="11">${detailHtml(c, ev)}</td></tr>`;
+    }
+  }
+  tb.innerHTML = shown ? h : `<tr><td colspan="11" class="empty">No rows match this filter.</td></tr>`;
+  tb.querySelectorAll("button.nm").forEach(b=>b.addEventListener("click",()=>{
+    const id=b.dataset.id; if(open.has(id)) open.delete(id); else open.add(id); renderTable();
+    const nb = document.querySelector(`button.nm[data-id="${id}"]`); if(nb) nb.focus();
+  }));
+}
+function tally(ev){
+  const t = {excluded:{n:0,stays:0,reopens:0,altReopens:0}, ranked:{n:0,proceed:0,affected:0,blocked:0,closed:0,opens:0}, other:{n:0,affected:0}, changed:0};
+  for(const c of D.candidates){
+    const e = ev[c.id];
+    if(c.kind==="excluded"){ t.excluded.n++; t.excluded[e.status]++; if(e.alt==="reopens") t.excluded.altReopens++; if(e.status==="reopens") t.changed++; }
+    else if(c.kind==="ranked"){ t.ranked.n++; if(e.status==="blocked"||e.status==="closed") t.ranked[e.status]++; else t.ranked.proceed++; if(e.status==="affected") t.ranked.affected++; if(e.status==="opens") t.ranked.opens++; if(e.status!=="unchanged") t.changed++; }
+    else { t.other.n++; if(e.status==="affected") t.other.affected++; if(e.status!=="unchanged") t.changed++; }
+  }
+  return t;
+}
+function renderSummary(){
+  const t = tally(EV);
+  const reo = t.excluded.reopens;
+  const alt = S.src==="text" ? "Figure 2 reading" : "report text";
+  const altN = t.excluded.altReopens;
+  el("summary").innerHTML = `
+    <div class="tile${reo?" hot":""}"><div class="k">Excluded rows that re-open</div><div class="v">${reo} <small>of ${t.excluded.n}</small></div><div class="s">No recorded reason remains. Under the ${alt}: ${altN}.</div></div>
+    <div class="tile"><div class="k">Ranked agents not blocked</div><div class="v">${t.ranked.proceed} <small>of ${t.ranked.n}</small></div><div class="s">${t.ranked.blocked+t.ranked.closed} blocked or closed. ${t.ranked.affected} affected. ${t.ranked.opens} opened by an assay input.</div></div>
+    <div class="tile"><div class="k">Supportive, review and outside rows affected</div><div class="v">${t.other.affected} <small>of ${t.other.n}</small></div><div class="s">Three supportive, two deprescribing and one outside the question.</div></div>
+    <div class="tile"><div class="k">Rows changed from the report</div><div class="v">${t.changed} <small>of 40</small></div><div class="s">${t.changed? "Anything not shown as Unchanged or Stays excluded.":"This matches the report as written."}</div></div>`;
+  const sl = subsLabel();
+  el("scen").innerHTML = sl.length ? `<b>Substitutions in effect:</b> ${sl.map(esc).join("; ")}.` :
+    `<b>The report as written.</b> <span class="ok">6 ranked, 3 supportive, 2 for deprescribing, 1 outside the question and 28 excluded. Nothing is changed.</span>`;
+  const gnote = (!S.filt.f7b || !S.filt.f8) ? ` <span class="ok">The report records no row-level effect for ${[!S.filt.f7b?"f7b":"",!S.filt.f8?"f8":""].filter(Boolean).join(" or ")}, so no row changes for ${(!S.filt.f7b&&!S.filt.f8)?"them":"it"}.</span>` : "";
+  el("scen").innerHTML += gnote;
+}
+function render(){
+  EV = evaluate(S);
+  syncControls(); renderSummary(); renderTable(); pushHash();
+}
+
+function downloadCsv(){
+  const q = v => '"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  const rows = [["candidate","group","reported_verdict","status_under_substitution","recorded_reasons_remaining","recorded_reasons_total","triggered_notes"]];
+  for(const c of D.candidates){
+    const e = EV[c.id];
+    rows.push([c.name,c.group,c.verdict,STATUS_WORD[e.status], c.kind==="excluded"?e.active:"", c.kind==="excluded"?e.total:"", c.deps.filter(d=>e.triggered.includes(d.id)).map(d=>triggerLabel(d)+": "+d.effect).join(" | ")]);
+  }
+  rows.push([]); rows.push(["substitutions", subsLabel().join("; ")||"none (the report as written)"]);
+  const blob = new Blob(["﻿"+rows.map(r=>r.map(q).join(",")).join("\r\n")], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "scenario_statuses.csv";
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+}
+
+buildControls();
+try{ el("ctl").open = window.innerWidth >= 1100; }catch(e){}
+S = decodeHash(location.hash);
+window.addEventListener("hashchange",()=>{ const h=encodeHash(); if(location.hash.replace(/^#/,"")!==h){ S = decodeHash(location.hash); render(); } });
+render();
+window.__setState = function(s){ S = s; render(); };
+window.__getEval = function(s){ return evaluate(s); };
+})();
+</script>
+</body>
+</html>

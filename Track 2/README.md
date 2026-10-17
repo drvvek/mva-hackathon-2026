@@ -27,8 +27,6 @@ It answers one question: if an assumption or a filter were removed, which of the
 
 It reads the reasons the report already wrote. It does not run a new screen, re-rank anything or recalculate an unlock condition. "Re-opens" means that no recorded reason for exclusion remains, which is not an endorsement of that agent. The three CSV files are the same data in readable form, so each claim can be checked against the report without reading the page's code.
 
-The page was checked against a separate Python implementation that reads only the three CSV files: 626 states compared, no mismatches. `PROVENANCE.md` has the details.
-
 ## What is not here
 
 No patient genome file, participant reference document or Track 1 scorer output is in this folder. Track 1 is elsewhere in this repository.

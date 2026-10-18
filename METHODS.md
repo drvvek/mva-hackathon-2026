@@ -46,11 +46,11 @@ Re-queried Ensembl VEP on GRCh38 `15:40220612`.
 
 Same MANE transcript, same AA change, **tools disagree**. Do not cite SIFT/PolyPhen as independent support for pathogenicity of N1002K. Rarity for allele 2 is the gnomAD singleton count, not the in-silico scores.
 
-## Phase — do not overstate
+## Phase
 
 No parents. No PGT/PID on these sites. 11.0 kb is beyond short-read local phasing. The only phase set (`PID`) in the BUB1B window is an unrelated adjacent pair at 40216568/40216570. **Trans is an inference from AR MVA1 + this genotype, not a demonstrated compound-het.**
 
-## Negative screen (this extract only)
+## Negative screen
 
 1,467 non-ref calls in 12 MVA/SAC windows. 34 overlap a MANE exon; **13 are coding**. Only **two coding calls have AF &lt; 10⁻³, and both are the BUB1B pair**.
 
@@ -61,7 +61,7 @@ No parents. No PGT/PID on these sites. 11.0 kb is beyond short-read local phasin
 - MAD2L1BP rs7106: common (AF ~0.15–0.28). Ensembl consequence is transcript-dependent (coding vs upstream); frequency rules it out either way.
 - **TRIP13 (MVA3) and CEP57 (MVA2) were not negatively proven.** TRIP13: 3 calls, all DP 7, spanning a fraction of the gene. CEP57: 4 calls, none coding, call density ~20-fold below MAD1L1. A non-reference-only extract cannot distinguish homozygous-reference from not covered. Defensible statement: **no callable coding variant in these windows; coverage undemonstrated.**
 
-This is **not** “the genome contains nothing else.” Structural variants, deep-intronic splice, mosaic aneuploidy from read depth, and genes outside the 12 windows were not tested. No splice-site candidate within 8 bp of a MANE exon boundary was found among QC-passing novel calls in these windows.
+Structural variants, deep-intronic splice, mosaic aneuploidy from read depth, and genes outside the 12 windows were not tested. No splice-site candidate within 8 bp of a MANE exon boundary was found among QC-passing novel calls in these windows.
 
 ## Limits
 

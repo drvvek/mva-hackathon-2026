@@ -48,7 +48,7 @@ Same MANE transcript, same AA change, **tools disagree**. Do not cite SIFT/PolyP
 
 ## Phase
 
-No parents. No PGT/PID on these sites. 11.0 kb is beyond short-read local phasing. The only phase set (`PID`) in the BUB1B window is an unrelated adjacent pair at 40216568/40216570. **Trans is an inference from AR MVA1 + this genotype, not a demonstrated compound-het.**
+No parents. No PGT/PID on these sites. 10.9 kb is beyond short-read local phasing. The only phase set (`PID`) in the BUB1B window is an unrelated adjacent pair at 40216568/40216570. **Trans is an inference from AR MVA1 + this genotype, not a demonstrated compound-het.**
 
 ## Negative screen
 

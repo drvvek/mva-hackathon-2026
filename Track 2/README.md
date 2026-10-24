@@ -1,4 +1,4 @@
-# Track 2: drug repurposing for biallelic BUB1B mosaic variegated aneuploidy (MVA1)
+<img width="1728" height="951" alt="image" src="https://github.com/user-attachments/assets/42c1b950-f252-44bd-bc7e-de313549cc92" /># Track 2: drug repurposing for biallelic BUB1B mosaic variegated aneuploidy (MVA1)
 
 Team MosaicTrace · Rare Disease, Real Kid: MVA Hackathon 2026
 
@@ -22,6 +22,8 @@ The report screens 40 drugs and drug classes against a child with biallelic *BUB
 ## The viewer
 
 `viewer/sensitivity_viewer.html` is one self-contained file. Open it in a browser; it needs no installation and makes no network requests except when you click a PubMed link.
+
+It can also be accessed via: https://drvvek.github.io/mva-hackathon-2026/Track%202/viewer/sensitivity_viewer.html 
 
 It answers one question: if an assumption or a filter were removed, which of the report's recorded reasons would no longer hold? The switches follow the report: Assumptions W, Q, O and T, filters f1 to f7 and the gates f7a, f7b and f8, the stability result for p.(Asn1002Lys), the interferon-stimulated gene readout, and the treatment phase. One further switch stands for the rhabdomyosarcoma that the arimoclomol exclusion rests on, which Table 22 marks as not transferable. The preset "General MVA1 family (Table 22)" applies that table's list of what transfers to another family.
 

@@ -19,9 +19,9 @@ The report screens 40 drugs and drug classes against a child with biallelic *BUB
 
 ## The viewer
 
-`viewer/sensitivity_viewer.html` is one self-contained file. Open it in a browser; it needs no installation and makes no network requests except when you click a PubMed link.
+Track 2/viewer/sensitivity_viewer.html` is one self-contained file. Open it in a browser; it needs no installation and makes no network requests except when you click a PubMed link.
 
-It can also be accessed via: https://drvvek.github.io/mva-hackathon-2026/Track%202/viewer/sensitivity_viewer.html 
+Open the running viewer: [Assumptions and filters viewer](https://drvvek.github.io/mva-hackathon-2026/Track%202/viewer/sensitivity_viewer.html)
 
 It answers one question: if an assumption or a filter were removed, which of the report's recorded reasons would no longer hold? The switches follow the report: Assumptions W, Q, O and T, filters f1 to f7 and the gates f7a, f7b and f8, the stability result for p.(Asn1002Lys), the interferon-stimulated gene readout, and the treatment phase. One further switch stands for the rhabdomyosarcoma that the arimoclomol exclusion rests on, which Table 22 marks as not transferable. The preset "General MVA1 family (Table 22)" applies that table's list of what transfers to another family.
 
@@ -30,3 +30,7 @@ It reads the reasons the report already wrote. It does not run a new screen, re-
 ## What is not here
 
 No patient genome file, participant reference document or Track 1 scorer output is in this folder. Track 1 is elsewhere in this repository.
+
+## Acknowledgement
+
+This work was made possible through the Hackathon, organized by Sage Bionetworks in partnership with the MVA Society, Hugging Face, and BEACON (The Benchmarking, Evaluation, and Assessment Consortium for Science), with prize sponsorship from AWS and Anthropic. We are deeply grateful to the child and their family who generously contributed their data and their story to advance research into this rare disease. We acknowledge their trust in making this Hackathon possible.

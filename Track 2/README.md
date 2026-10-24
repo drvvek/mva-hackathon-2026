@@ -1,5 +1,3 @@
-<img width="1728" height="951" alt="image" src="https://github.com/user-attachments/assets/42c1b950-f252-44bd-bc7e-de313549cc92" /># Track 2: drug repurposing for biallelic BUB1B mosaic variegated aneuploidy (MVA1)
-
 Team MosaicTrace · Rare Disease, Real Kid: MVA Hackathon 2026
 
 This folder holds the supporting files for the Track 2 report. The report itself is submitted as a PDF through the challenge portal. The method abstract and the methods description form are in Appendix B of that report, so there is no separate form file here.
